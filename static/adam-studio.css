@@ -240,6 +240,20 @@ h2 {
   font-size: 19px;
 }
 
+.text-link {
+  display: inline-flex;
+  margin-top: 10px;
+  color: var(--gold-dark);
+  font-size: 15px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.text-link:hover,
+.text-link:focus {
+  color: var(--ink);
+}
+
 .studio-notes {
   display: grid;
   gap: 0;
