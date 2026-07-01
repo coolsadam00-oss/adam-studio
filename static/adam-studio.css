@@ -452,7 +452,7 @@ footer nav a:focus {
 
 .team-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 22px;
 }
 
@@ -711,9 +711,12 @@ footer {
   }
 
   .platform-list,
-  .focus-grid,
-  .team-grid {
+  .focus-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .team-grid {
+    grid-template-columns: 1fr;
   }
 
   .platform-list > :nth-child(2n),
