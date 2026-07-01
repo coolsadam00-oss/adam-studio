@@ -502,6 +502,47 @@ footer nav a:focus {
   background: var(--paper);
 }
 
+.help-hero {
+  min-height: 360px;
+  display: grid;
+  align-items: end;
+  padding: clamp(56px, 8vw, 110px) clamp(18px, 6vw, 86px);
+  color: var(--paper);
+  background:
+    radial-gradient(circle at 78% 38%, rgba(197, 155, 69, 0.28), transparent 28%),
+    linear-gradient(135deg, #050505, #191919);
+}
+
+.help-hero > div {
+  max-width: 850px;
+}
+
+.help-hero p:first-child {
+  margin: 0 0 12px;
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.help-hero h1 {
+  margin: 0;
+  font-size: clamp(72px, 12vw, 160px);
+  line-height: 0.88;
+}
+
+.help-hero p:not(:first-child) {
+  max-width: 680px;
+  color: #d2cbc0;
+  font-size: clamp(18px, 2vw, 24px);
+  line-height: 1.55;
+}
+
+.standalone-help {
+  border-top: 1px solid var(--line);
+}
+
 .help-copy p:first-child,
 .thanks-panel > p:first-child {
   margin: 0 0 10px;
@@ -709,6 +750,7 @@ footer {
   .focus,
   .team,
   .community,
+  .help-hero,
   .help-section {
     padding-left: 16px;
     padding-right: 16px;

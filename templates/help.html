@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Help - Adam Studio</title>
+  <meta name="description" content="Send a private help request to Adam Studio for account, website, or game problems." />
+  <link rel="icon" href="/static/adam-studio-logo.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="/static/adam-studio.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="{{ adam_studio_home_url|default('/') }}" aria-label="Adam Studio home">
+      <img src="/static/adam-studio-logo.jpg" alt="Adam Studio logo">
+      <span>Adam Studio</span>
+    </a>
+    <nav aria-label="Studio navigation">
+      <a href="/#platforms">Platforms</a>
+      <a href="/#gexora">Gexora</a>
+      <a href="/#focus">Focus</a>
+      <a href="/#team">Team</a>
+      <a href="/help" aria-current="page">Help</a>
+    </nav>
+    <a class="header-cta" href="https://discord.gg/DfBEkNneb">Join Discord</a>
+  </header>
+
+  <main>
+    <section class="help-hero">
+      <div>
+        <p>Adam Studio Support</p>
+        <h1>Help</h1>
+        <p>
+          Tell us about an account problem, website problem, game problem, or
+          another issue. Your message goes privately to the Adam Studio team.
+        </p>
+      </div>
+    </section>
+
+    <section class="help-section standalone-help">
+      <div class="help-copy">
+        <p>Problem Report</p>
+        <h2>Tell Us The Problem</h2>
+        <p>
+          Use clear details so we can understand what happened. Do not send any
+          passwords.
+        </p>
+      </div>
+      <form class="help-form" action="/help" method="post">
+        <input class="hidden-field" name="website" tabindex="-1" autocomplete="off">
+        {% if help_error %}
+          <p class="form-error">{{ help_error }}</p>
+        {% endif %}
+        <label>
+          Your name
+          <input name="name" maxlength="120" autocomplete="name" placeholder="Your name">
+        </label>
+        <label>
+          Your email
+          <input name="email" type="email" maxlength="254" autocomplete="email" placeholder="So we can reply">
+        </label>
+        <label>
+          Account or username
+          <input name="account" maxlength="120" placeholder="Roblox, Gexora, Discord, Steam...">
+        </label>
+        <label>
+          Problem type
+          <select name="problem_type">
+            <option>Account problem</option>
+            <option>Website problem</option>
+            <option>Game problem</option>
+            <option>Report a bug</option>
+            <option>Other help</option>
+          </select>
+        </label>
+        <label class="full-field">
+          What happened?
+          <textarea name="message" required maxlength="4000" rows="6" placeholder="Explain the problem clearly. Do not send passwords."></textarea>
+        </label>
+        <button class="button primary" type="submit">Submit Help Request</button>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <span>Adam Studio</span>
+    <nav aria-label="Footer navigation">
+      <a href="/#platforms">Platforms</a>
+      <a href="https://gexora.onrender.com">Gaming Website</a>
+      <a href="https://discord.gg/DfBEkNneb">Discord</a>
+      <a href="/help">Help</a>
+    </nav>
+  </footer>
+</body>
+</html>

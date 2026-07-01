@@ -79,14 +79,17 @@ def send_help_request(form):
     return True
 
 
-@app.route("/help", methods=["POST"])
+@app.route("/help", methods=["GET", "POST"])
 def help_request():
+    if request.method == "GET":
+        return render_template("help.html", adam_studio_home_url="/")
+
     if request.form.get("website"):
         return redirect(url_for("thank_you"))
 
     if not clean_message(request.form.get("message"), 20):
         return render_template(
-            "adam_studio.html",
+            "help.html",
             adam_studio_home_url="/",
             help_error="Please tell us what problem you need help with.",
         ), 400
