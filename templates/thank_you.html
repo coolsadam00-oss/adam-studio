@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Thank You - Adam Studio</title>
+  <link rel="icon" href="/static/adam-studio-logo.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="/static/adam-studio.css">
+</head>
+<body class="thanks-body">
+  <main class="thanks-page">
+    <a class="brand" href="/" aria-label="Adam Studio home">
+      <img src="/static/adam-studio-logo.jpg" alt="Adam Studio logo">
+      <span>Adam Studio</span>
+    </a>
+    <section class="thanks-panel">
+      <p>Help Request</p>
+      <h1>Thank You</h1>
+      {% if sent %}
+        <p>Your problem was submitted to the Adam Studio team.</p>
+      {% else %}
+        <p>
+          Your message was received by the website, but email sending is not
+          configured yet. The team needs to finish email setup on Render.
+        </p>
+      {% endif %}
+      <div class="hero-actions">
+        <a class="button primary" href="/">Back To Adam Studio</a>
+        <a class="button secondary" href="https://discord.gg/DfBEkNneb">Join Discord</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

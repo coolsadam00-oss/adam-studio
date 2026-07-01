@@ -19,6 +19,7 @@
       <a href="#gexora">Gexora</a>
       <a href="#focus">Focus</a>
       <a href="#team">Team</a>
+      <a href="#help">Help</a>
     </nav>
     <a class="header-cta" href="https://discord.gg/DfBEkNneb">Join Discord</a>
   </header>
@@ -171,6 +172,51 @@
         <a class="button light" href="https://www.tiktok.com/@adam.studi0?_r=1&_t=ZG-97fzZ2BCCyP">Follow TikTok</a>
       </div>
     </section>
+
+    <section id="help" class="help-section">
+      <div class="help-copy">
+        <p>Need Help?</p>
+        <h2>Tell Us The Problem</h2>
+        <p>
+          If you have an account problem, website problem, game problem, or
+          another issue, send it here. Your message goes privately to the Adam
+          Studio team.
+        </p>
+      </div>
+      <form class="help-form" action="/help" method="post">
+        <input class="hidden-field" name="website" tabindex="-1" autocomplete="off">
+        {% if help_error %}
+          <p class="form-error">{{ help_error }}</p>
+        {% endif %}
+        <label>
+          Your name
+          <input name="name" maxlength="120" autocomplete="name" placeholder="Your name">
+        </label>
+        <label>
+          Your email
+          <input name="email" type="email" maxlength="254" autocomplete="email" placeholder="So we can reply">
+        </label>
+        <label>
+          Account or username
+          <input name="account" maxlength="120" placeholder="Roblox, Gexora, Discord, Steam...">
+        </label>
+        <label>
+          Problem type
+          <select name="problem_type">
+            <option>Account problem</option>
+            <option>Website problem</option>
+            <option>Game problem</option>
+            <option>Report a bug</option>
+            <option>Other help</option>
+          </select>
+        </label>
+        <label class="full-field">
+          What happened?
+          <textarea name="message" required maxlength="4000" rows="6" placeholder="Explain the problem clearly. Do not send passwords."></textarea>
+        </label>
+        <button class="button primary" type="submit">Submit Help Request</button>
+      </form>
+    </section>
   </main>
 
   <footer>
@@ -179,6 +225,7 @@
       <a href="#platforms">Platforms</a>
       <a href="https://gexora.onrender.com">Gaming Website</a>
       <a href="https://discord.gg/DfBEkNneb">Discord</a>
+      <a href="#help">Help</a>
     </nav>
   </footer>
 </body>

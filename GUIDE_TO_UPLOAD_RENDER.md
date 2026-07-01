@@ -50,6 +50,23 @@ gunicorn adam_studio_app:app --log-file -
 
 6. Click **Create Web Service**.
 
+## 4. Add private email settings
+
+In Render, open your Adam Studio service and go to **Environment**.
+Add these variables:
+
+```text
+SUPPORT_EMAIL=<your private support email>
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=<your Gmail address>
+SMTP_PASSWORD=<your Gmail app password>
+SMTP_FROM=<your Gmail address>
+```
+
+Use a Gmail app password, not your normal Gmail password. Your private support
+email is only used by the server and is not shown on the website.
+
 Your site will be live at a Render URL like:
 
 ```text
