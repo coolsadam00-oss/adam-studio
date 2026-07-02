@@ -60,7 +60,6 @@
         <span>Store</span>
         <a href="#shop-title">Featured</a>
         <a href="#library">Library</a>
-        <a href="#admin">Admin</a>
       </div>
 
       <div class="steam-content">
@@ -112,21 +111,14 @@
           <span>{% if user %}{{ owned_ids|length }} installed-ready{% else %}Log in to see your library{% endif %}</span>
         </section>
 
-        <section id="admin" class="admin-shop">
-          <div class="admin-heading">
-            <div>
-              <p>Admin Tools</p>
-              <h2>Upload Games And Set Prices</h2>
+        {% if is_admin %}
+          <section id="admin" class="admin-shop">
+            <div class="admin-heading">
+              <div>
+                <p>Admin Tools</p>
+                <h2>Upload Games And Set Prices</h2>
+              </div>
             </div>
-            {% if not is_admin %}
-              <form class="admin-login" action="/shop/admin-login" method="post">
-                <input name="password" type="password" placeholder="Admin password">
-                <button class="steam-button secondary" type="submit">Admin Login</button>
-              </form>
-            {% endif %}
-          </div>
-
-          {% if is_admin %}
             <form class="admin-upload" action="/shop/admin" method="post" enctype="multipart/form-data">
               <input type="hidden" name="action" value="create">
               <input name="title" required maxlength="120" placeholder="Game title">
@@ -149,8 +141,8 @@
                 </form>
               {% endfor %}
             </div>
-          {% endif %}
-        </section>
+          </section>
+        {% endif %}
       </div>
     </section>
   </main>

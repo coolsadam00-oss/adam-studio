@@ -215,13 +215,20 @@ def install_game(game_id):
     return redirect(url_for("shop", message="No installer is uploaded yet."))
 
 
-@app.post("/shop/admin-login")
+@app.route("/shop/admin-login", methods=["GET", "POST"])
 def shop_admin_login():
+    if request.method == "GET":
+        return render_template(
+            "shop_admin_login.html",
+            adam_studio_home_url="/",
+            message=request.args.get("message", ""),
+        )
+
     admin_password = os.environ.get("ADMIN_PASSWORD", "2155")
     if request.form.get("password") == admin_password:
         session["shop_admin"] = True
         return redirect(url_for("shop", message="Admin mode enabled."))
-    return redirect(url_for("shop", message="Wrong admin password."))
+    return redirect(url_for("shop_admin_login", message="Wrong admin password."))
 
 
 @app.post("/shop/admin")
