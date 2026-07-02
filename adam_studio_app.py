@@ -87,6 +87,13 @@ def help_request():
     if request.form.get("website"):
         return redirect(url_for("thank_you"))
 
+    if not safe_reply_to(request.form.get("email")):
+        return render_template(
+            "help.html",
+            adam_studio_home_url="/",
+            help_error="Please enter your email address so the team can reply.",
+        ), 400
+
     if not clean_message(request.form.get("message"), 20):
         return render_template(
             "help.html",
