@@ -14,6 +14,24 @@ def home():
     return render_template("adam_studio.html", adam_studio_home_url="/")
 
 
+@app.route("/donate")
+def donate():
+    return render_template(
+        "donate.html",
+        adam_studio_home_url="/",
+        donate_url=os.environ.get("DONATE_URL", "https://discord.gg/DfBEkNneb"),
+    )
+
+
+@app.route("/shop")
+def shop():
+    return render_template(
+        "shop.html",
+        adam_studio_home_url="/",
+        shop_url=os.environ.get("SHOP_URL", "https://gexora.onrender.com"),
+    )
+
+
 def clean_field(value, limit):
     return " ".join((value or "").split())[:limit]
 
@@ -115,4 +133,4 @@ def thank_you():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "5000")), debug=True)

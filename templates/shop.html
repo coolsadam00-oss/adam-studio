@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Shop - Adam Studio</title>
+  <meta name="description" content="Visit the Adam Studio shop for merch, digital items, and future game products." />
+  <link rel="icon" href="/static/adam-studio-logo.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="/static/adam-studio.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="{{ adam_studio_home_url|default('/') }}" aria-label="Adam Studio home">
+      <img src="/static/adam-studio-logo.jpg" alt="Adam Studio logo">
+      <span>Adam Studio</span>
+    </a>
+    <nav aria-label="Studio navigation">
+      <a href="/#platforms">Platforms</a>
+      <a href="/#gexora">Gexora</a>
+      <a href="/#focus">Focus</a>
+      <a href="/#team">Team</a>
+      <a href="/donate">Donate</a>
+      <a href="/shop" aria-current="page">Shop</a>
+      <a href="/help">Help</a>
+    </nav>
+    <a class="header-cta" href="https://discord.gg/DfBEkNneb">Join Discord</a>
+  </header>
+
+  <main>
+    <section class="help-hero">
+      <div>
+        <p>Adam Studio Store</p>
+        <h1>Shop</h1>
+        <p>
+          Discover future merch, digital items, and Adam Studio products made
+          for players and fans.
+        </p>
+      </div>
+    </section>
+
+    <section class="support-section">
+      <div class="help-copy">
+        <p>Studio Products</p>
+        <h2>Shop Adam Studio</h2>
+        <p>
+          The shop is the place for official Adam Studio drops, game items, and
+          community products.
+        </p>
+      </div>
+      <div class="shop-grid">
+        <article>
+          <span class="support-tag">Merch</span>
+          <h3>Studio Drops</h3>
+          <p>Clothes, accessories, and brand items can live here when ready.</p>
+        </article>
+        <article>
+          <span class="support-tag">Games</span>
+          <h3>Digital Items</h3>
+          <p>Future game extras, passes, and special community items.</p>
+        </article>
+        <article>
+          <span class="support-tag">Official</span>
+          <h3>Adam Studio</h3>
+          <p>Only trusted links from the real Adam Studio website.</p>
+        </article>
+        <a class="button primary shop-button" href="{{ shop_url }}">Open Shop</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Adam Studio</span>
+    <nav aria-label="Footer navigation">
+      <a href="/#platforms">Platforms</a>
+      <a href="https://gexora.onrender.com">Gaming Website</a>
+      <a href="https://discord.gg/DfBEkNneb">Discord</a>
+      <a href="/donate">Donate</a>
+      <a href="/shop">Shop</a>
+      <a href="/help">Help</a>
+    </nav>
+  </footer>
+</body>
+</html>
