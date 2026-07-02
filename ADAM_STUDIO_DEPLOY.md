@@ -36,10 +36,34 @@ SMTP_FROM=<your Gmail address>
 
 The website never shows `SUPPORT_EMAIL` to visitors.
 
+## Shop and Gexora login
+
+The shop keeps the Adam Studio game library on this service. Users create
+accounts and log in on Gexora. Add these Render environment variables when the
+Gexora login flow is ready:
+
+```text
+SECRET_KEY=<random long secret for Flask sessions>
+ADMIN_PASSWORD=<private admin shop password>
+GEXORA_LOGIN_URL=https://gexora.onrender.com/login
+GEXORA_REGISTER_URL=https://gexora.onrender.com/register
+GEXORA_SHARED_SECRET=<same private secret used by Gexora return links>
+```
+
+The Gexora return URL for Adam Studio is:
+
+```text
+https://<your-adam-studio-site>/shop/gexora-return?username=<name>&token=<hmac>
+```
+
+The `token` must be an HMAC-SHA256 of the username using `GEXORA_SHARED_SECRET`.
+
 ## Files needed
 
 - `adam_studio_app.py`
 - `templates/adam_studio.html`
+- `templates/help.html`
+- `templates/shop.html`
 - `static/adam-studio.css`
 - `static/adam-studio-logo.jpg`
 - `requirements.txt`

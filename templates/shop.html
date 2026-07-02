@@ -4,12 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Shop - Adam Studio</title>
-  <meta name="description" content="Visit the Adam Studio shop for merch, digital items, and future game products." />
+  <meta name="description" content="Adam Studio game shop for Gexora accounts. Claim free games, install games, and browse paid games." />
   <link rel="icon" href="/static/adam-studio-logo.jpg" type="image/jpeg">
   <link rel="stylesheet" href="/static/adam-studio.css">
 </head>
-<body>
-  <header class="site-header">
+<body class="shop-body">
+  <header class="site-header shop-header">
     <a class="brand" href="{{ adam_studio_home_url|default('/') }}" aria-label="Adam Studio home">
       <img src="/static/adam-studio-logo.jpg" alt="Adam Studio logo">
       <span>Adam Studio</span>
@@ -19,62 +19,148 @@
       <a href="/#gexora">Gexora</a>
       <a href="/#focus">Focus</a>
       <a href="/#team">Team</a>
-      <a href="/donate">Donate</a>
       <a href="/shop" aria-current="page">Shop</a>
       <a href="/help">Help</a>
     </nav>
     <a class="header-cta" href="https://discord.gg/DfBEkNneb">Join Discord</a>
   </header>
 
-  <main>
-    <section class="help-hero">
-      <div>
-        <p>Adam Studio Store</p>
-        <h1>Shop</h1>
-        <p>
-          Discover future merch, digital items, and Adam Studio products made
-          for players and fans.
-        </p>
+  <main class="shop-page">
+    <section class="shop-hero">
+      <div class="shop-hero-copy">
+        <p>Adam Studio x Gexora</p>
+        <h1>Game Shop</h1>
+        <p>Log in with your Gexora account, claim free games, install builds, and browse premium games from Adam Studio.</p>
+      </div>
+      <div id="account" class="shop-account-panel">
+        {% if message %}
+          <p class="shop-message">{{ message }}</p>
+        {% endif %}
+        {% if user %}
+          <span class="support-tag">Gexora Account</span>
+          <h2>{{ user.username }}</h2>
+          <p>Your Adam Studio game library is connected to this Gexora account.</p>
+          <form action="/shop/logout" method="post">
+            <button class="steam-button ghost" type="submit">Log Out</button>
+          </form>
+        {% else %}
+          <span class="support-tag">Gexora Required</span>
+          <h2>Account On Gexora</h2>
+          <p>Adam Studio stores the game library here. Login and account creation happen on Gexora.</p>
+          <div class="login-actions">
+            <a class="steam-button" href="{{ gexora_login_url }}">Log In On Gexora</a>
+            <a class="steam-button secondary" href="{{ gexora_register_url }}">Create On Gexora</a>
+          </div>
+        {% endif %}
       </div>
     </section>
 
-    <section class="support-section">
-      <div class="help-copy">
-        <p>Studio Products</p>
-        <h2>Shop Adam Studio</h2>
-        <p>
-          The shop is the place for official Adam Studio drops, game items, and
-          community products.
-        </p>
+    <section class="steam-shell" aria-labelledby="shop-title">
+      <div class="steam-sidebar">
+        <span>Store</span>
+        <a href="#shop-title">Featured</a>
+        <a href="#library">Library</a>
+        <a href="#admin">Admin</a>
       </div>
-      <div class="shop-grid">
-        <article>
-          <span class="support-tag">Merch</span>
-          <h3>Studio Drops</h3>
-          <p>Clothes, accessories, and brand items can live here when ready.</p>
-        </article>
-        <article>
-          <span class="support-tag">Games</span>
-          <h3>Digital Items</h3>
-          <p>Future game extras, passes, and special community items.</p>
-        </article>
-        <article>
-          <span class="support-tag">Official</span>
-          <h3>Adam Studio</h3>
-          <p>Only trusted links from the real Adam Studio website.</p>
-        </article>
-        <a class="button primary shop-button" href="{{ shop_url }}">Open Shop</a>
+
+      <div class="steam-content">
+        <div class="steam-toolbar">
+          <div>
+            <p>Adam Studio Store</p>
+            <h2 id="shop-title">Featured Games</h2>
+          </div>
+          <span>{{ games|length }} games</span>
+        </div>
+
+        <div class="steam-grid">
+          {% for game in games %}
+            <article class="steam-card">
+              <div class="steam-cover" style="--cover: {{ game.cover_color }}">
+                <span>{{ game.title[:2] }}</span>
+              </div>
+              <div class="steam-card-body">
+                <div>
+                  <h3>{{ game.title }}</h3>
+                  <p>{{ game.description }}</p>
+                </div>
+                <div class="steam-card-footer">
+                  <span class="price-pill">{{ price_label(game.price_cents) }}</span>
+                  {% if not user %}
+                    <a class="steam-button small" href="{{ gexora_login_url }}">Gexora Login</a>
+                  {% elif game.id in owned_ids %}
+                    <form action="/shop/install/{{ game.id }}" method="post">
+                      <button class="steam-button small" type="submit">Install</button>
+                    </form>
+                  {% elif game.price_cents == 0 %}
+                    <form action="/shop/claim/{{ game.id }}" method="post">
+                      <button class="steam-button small" type="submit">Claim Free</button>
+                    </form>
+                  {% else %}
+                    <button class="steam-button small muted" type="button">Buy Soon</button>
+                  {% endif %}
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+
+        <section id="library" class="library-strip">
+          <div>
+            <p>Your Library</p>
+            <h2>Claimed Games</h2>
+          </div>
+          <span>{% if user %}{{ owned_ids|length }} installed-ready{% else %}Log in to see your library{% endif %}</span>
+        </section>
+
+        <section id="admin" class="admin-shop">
+          <div class="admin-heading">
+            <div>
+              <p>Admin Tools</p>
+              <h2>Upload Games And Set Prices</h2>
+            </div>
+            {% if not is_admin %}
+              <form class="admin-login" action="/shop/admin-login" method="post">
+                <input name="password" type="password" placeholder="Admin password">
+                <button class="steam-button secondary" type="submit">Admin Login</button>
+              </form>
+            {% endif %}
+          </div>
+
+          {% if is_admin %}
+            <form class="admin-upload" action="/shop/admin" method="post" enctype="multipart/form-data">
+              <input type="hidden" name="action" value="create">
+              <input name="title" required maxlength="120" placeholder="Game title">
+              <input name="price" type="number" min="0" step="0.01" placeholder="Price, 0 = free">
+              <input name="cover_color" type="color" value="#1b2838" aria-label="Cover color">
+              <input name="download_url" placeholder="Install URL optional">
+              <textarea name="description" maxlength="800" rows="3" placeholder="Game description"></textarea>
+              <input name="game_file" type="file">
+              <button class="steam-button" type="submit">Upload Game</button>
+            </form>
+
+            <div class="price-editor">
+              {% for game in games %}
+                <form action="/shop/admin" method="post">
+                  <input type="hidden" name="action" value="price">
+                  <input type="hidden" name="game_id" value="{{ game.id }}">
+                  <strong>{{ game.title }}</strong>
+                  <input name="price" type="number" min="0" step="0.01" value="{{ '%.2f'|format(game.price_cents / 100) }}">
+                  <button class="steam-button small secondary" type="submit">Save Price</button>
+                </form>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </section>
       </div>
     </section>
   </main>
 
-  <footer>
+  <footer class="shop-footer">
     <span>Adam Studio</span>
     <nav aria-label="Footer navigation">
       <a href="/#platforms">Platforms</a>
       <a href="https://gexora.onrender.com">Gaming Website</a>
       <a href="https://discord.gg/DfBEkNneb">Discord</a>
-      <a href="/donate">Donate</a>
       <a href="/shop">Shop</a>
       <a href="/help">Help</a>
     </nav>
