@@ -190,6 +190,22 @@ def shop():
     )
 
 
+@app.route("/admin")
+def admin():
+    init_shop_db()
+    if not is_shop_admin():
+        return redirect(gexora_login_url())
+    with get_shop_db() as db:
+        games = db.execute("SELECT * FROM shop_games ORDER BY id DESC").fetchall()
+    return render_template(
+        "shop_admin.html",
+        adam_studio_home_url="/",
+        games=games,
+        message=request.args.get("message", ""),
+        user=current_shop_user(),
+    )
+
+
 @app.route("/libery")
 def libery():
     init_shop_db()
@@ -377,7 +393,7 @@ def shop_admin():
                     cleanup_upload(game["thumbnail"])
             db.execute("DELETE FROM library WHERE game_id = ?", (game_id,))
             db.execute("DELETE FROM shop_games WHERE id = ?", (game_id,))
-    return redirect(url_for("shop", message="Shop updated."))
+    return redirect(url_for("admin", message="Shop updated."))
 
 
 def clean_field(value, limit):

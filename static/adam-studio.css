@@ -1043,9 +1043,21 @@ footer nav a:focus {
   gap: 12px;
 }
 
-.admin-upload textarea,
-.admin-upload input[name="download_url"],
-.admin-upload input[type="file"],
+.admin-upload label,
+.price-editor label {
+  display: grid;
+  gap: 7px;
+  color: #f4e6c6;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.admin-upload label:has(textarea),
+.admin-upload label:has(input[name="download_url"]),
+.admin-upload label:has(input[name="thumbnail_url"]),
+.admin-upload label:has(input[type="file"]),
 .admin-upload button {
   grid-column: 1 / -1;
 }
@@ -1066,10 +1078,10 @@ footer nav a:focus {
   background: rgba(255, 255, 255, 0.04);
 }
 
-.price-editor form input[name="download_url"],
-.price-editor form input[name="thumbnail_url"],
-.price-editor form textarea,
-.price-editor form input[type="file"],
+.price-editor form label:has(input[name="download_url"]),
+.price-editor form label:has(input[name="thumbnail_url"]),
+.price-editor form label:has(textarea),
+.price-editor form label:has(input[type="file"]),
 .price-editor form button {
   grid-column: 1 / -1;
 }

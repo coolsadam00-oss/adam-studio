@@ -42,7 +42,7 @@
           <h2>{{ user.username }}</h2>
           <p>Your Adam Studio game library is connected to this Gexora account.</p>
           {% if is_admin %}
-            <a class="steam-button secondary" href="#admin">Admin Tab</a>
+            <a class="steam-button secondary" href="/admin">Admin</a>
           {% endif %}
           <form action="/shop/logout" method="post">
             <button class="steam-button ghost" type="submit">Log Out</button>
@@ -64,7 +64,7 @@
         <span>Store</span>
         <a href="#shop-title">Featured</a>
         <a href="/libery">Libery</a>
-        {% if is_admin %}<a href="#admin">Admin</a>{% endif %}
+        {% if is_admin %}<a href="/admin">Admin</a>{% endif %}
       </div>
 
       <div class="steam-content">
@@ -118,53 +118,6 @@
           {% endfor %}
         </div>
 
-        {% if is_admin %}
-          <section id="admin" class="admin-shop">
-            <div class="admin-heading">
-              <div>
-                <p>Admin Tools</p>
-                <h2>Upload Games And Set Prices</h2>
-              </div>
-            </div>
-            <form class="admin-upload" action="/shop/admin" method="post" enctype="multipart/form-data">
-              <input type="hidden" name="action" value="create">
-              <input name="title" required maxlength="120" placeholder="Game title">
-              <input name="price" type="number" min="0" step="0.01" placeholder="Price, 0 = free">
-              <input name="cover_color" type="color" value="#1b2838" aria-label="Cover color">
-              <input name="download_url" placeholder="Game download URL optional">
-              <input name="thumbnail_url" placeholder="Thumbnail image URL optional">
-              <textarea name="description" maxlength="800" rows="3" placeholder="Game description"></textarea>
-              <input name="thumbnail_file" type="file" accept="image/*">
-              <input name="game_file" type="file" accept=".zip,.exe,.msi,.apk,.html,.rar,.7z,application/zip">
-              <button class="steam-button" type="submit">Upload Game</button>
-            </form>
-
-            <div class="price-editor">
-              {% for game in games %}
-                <form action="/shop/admin" method="post" enctype="multipart/form-data">
-                  <input type="hidden" name="action" value="update">
-                  <input type="hidden" name="game_id" value="{{ game.id }}">
-                  <input name="title" value="{{ game.title }}" maxlength="120">
-                  <input name="price" type="number" min="0" step="0.01" value="{{ '%.2f'|format(game.price_cents / 100) }}">
-                  <input name="cover_color" type="color" value="{{ game.cover_color }}" aria-label="Cover color">
-                  <input name="download_url" value="{{ game.download_url }}" placeholder="Game download URL">
-                  <input name="thumbnail_url" value="{% if game.thumbnail.startswith('http') %}{{ game.thumbnail }}{% endif %}" placeholder="Thumbnail URL">
-                  <textarea name="description" maxlength="800" rows="3">{{ game.description }}</textarea>
-                  <input name="thumbnail_file" type="file" accept="image/*">
-                  <input name="game_file" type="file" accept=".zip,.exe,.msi,.apk,.html,.rar,.7z,application/zip">
-                  <button class="steam-button small secondary" type="submit">Save Game</button>
-                </form>
-                <form action="/shop/admin" method="post">
-                  <input type="hidden" name="action" value="delete">
-                  <input type="hidden" name="game_id" value="{{ game.id }}">
-                  <strong>{{ game.title }}</strong>
-                  <span class="price-pill">Remove</span>
-                  <button class="steam-button small danger" type="submit">Delete</button>
-                </form>
-              {% endfor %}
-            </div>
-          </section>
-        {% endif %}
       </div>
     </section>
   </main>
