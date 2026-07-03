@@ -108,11 +108,21 @@ def is_shop_admin(user=None):
 
 
 def gexora_login_url():
-    base = os.environ.get(
+    return os.environ.get(
         "GEXORA_LOGIN_URL",
         "https://gexora.onrender.com/adam-studio-login",
     )
-    return base
+
+
+def gexora_register_url():
+    return os.environ.get(
+        "GEXORA_REGISTER_URL",
+        "https://gexora.onrender.com/login?next=/adam-studio-login",
+    )
+
+
+def gexora_shared_secret():
+    return os.environ.get("GEXORA_SHARED_SECRET", "change-this-gexora-shared-secret")
 
 
 def price_label(price_cents):
@@ -145,7 +155,7 @@ def shop():
         adam_studio_home_url="/",
         games=games,
         gexora_login_url=gexora_login_url(),
-        gexora_register_url=os.environ.get("GEXORA_REGISTER_URL", "https://gexora.onrender.com/register"),
+        gexora_register_url=gexora_register_url(),
         is_admin=is_shop_admin(user),
         message=request.args.get("message", ""),
         owned_ids=owned_ids,
@@ -186,7 +196,7 @@ def shop_gexora_return():
     email = clean_field(request.args.get("email"), 254).lower()
     is_admin_value = "1" if request.args.get("admin") == "1" else "0"
     token = request.args.get("token") or ""
-    shared_secret = os.environ.get("GEXORA_SHARED_SECRET", "")
+    shared_secret = gexora_shared_secret()
     expected = ""
     if username and shared_secret:
         payload = "|".join([username, email, is_admin_value])

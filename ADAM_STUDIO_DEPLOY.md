@@ -45,7 +45,7 @@ Gexora login flow is ready:
 ```text
 SECRET_KEY=<random long secret for Flask sessions>
 GEXORA_LOGIN_URL=https://gexora.onrender.com/adam-studio-login
-GEXORA_REGISTER_URL=https://gexora.onrender.com/register
+GEXORA_REGISTER_URL=https://gexora.onrender.com/login?next=/adam-studio-login
 GEXORA_SHARED_SECRET=<same private secret used by Gexora return links>
 ADAM_STUDIO_OWNER_EMAILS=coolsadam00@gmail.com
 ADAM_STUDIO_OWNER_USERNAMES=adminadam2155,coolsadam00
