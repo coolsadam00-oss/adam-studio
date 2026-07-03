@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Libery - Adam Studio</title>
+  <meta name="description" content="Your Adam Studio game libery connected with your Gexora account." />
+  <link rel="icon" href="/static/adam-studio-logo.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="/static/adam-studio.css">
+</head>
+<body class="shop-body">
+  <header class="site-header shop-header">
+    <a class="brand" href="{{ adam_studio_home_url|default('/') }}" aria-label="Adam Studio home">
+      <img src="/static/adam-studio-logo.jpg" alt="Adam Studio logo">
+      <span>Adam Studio</span>
+    </a>
+    <nav aria-label="Studio navigation">
+      <a href="/#platforms">Platforms</a>
+      <a href="/#gexora">Gexora</a>
+      <a href="/shop">Shop</a>
+      <a href="/libery" aria-current="page">Libery</a>
+      <a href="/help">Help</a>
+    </nav>
+    <a class="header-cta" href="https://discord.gg/DfBEkNneb">Join Discord</a>
+  </header>
+
+  <main class="shop-page">
+    <section class="shop-hero library-hero">
+      <div class="shop-hero-copy">
+        <p>Adam Studio</p>
+        <h1>Libery</h1>
+        <p>Your claimed Adam Studio games live here after you log in with your Gexora account.</p>
+      </div>
+      <div class="shop-account-panel">
+        {% if message %}
+          <p class="shop-message">{{ message }}</p>
+        {% endif %}
+        {% if user %}
+          <span class="support-tag">Gexora Account</span>
+          <h2>{{ user.username }}</h2>
+          <p>{{ games|length }} games ready in your Adam Studio libery.</p>
+          <form action="/shop/logout" method="post">
+            <button class="steam-button ghost" type="submit">Log Out</button>
+          </form>
+        {% else %}
+          <span class="support-tag">Login Required</span>
+          <h2>Use Gexora</h2>
+          <p>Log in on Gexora to see your Adam Studio libery.</p>
+          <a class="steam-button" href="{{ gexora_login_url }}">Log In On Gexora</a>
+        {% endif %}
+      </div>
+    </section>
+
+    <section class="steam-shell library-shell" aria-labelledby="library-title">
+      <div class="steam-content">
+        <div class="steam-toolbar">
+          <div>
+            <p>Your Games</p>
+            <h2 id="library-title">Installed-Ready Games</h2>
+          </div>
+          <a class="steam-button secondary" href="/shop">Back To Shop</a>
+        </div>
+
+        <div class="steam-grid">
+          {% for game in games %}
+            <article class="steam-card">
+              <div class="steam-cover" style="--cover: {{ game.cover_color }}">
+                <span>{{ game.title[:2] }}</span>
+              </div>
+              <div class="steam-card-body">
+                <div>
+                  <h3>{{ game.title }}</h3>
+                  <p>{{ game.description }}</p>
+                </div>
+                <form action="/shop/install/{{ game.id }}" method="post">
+                  <button class="steam-button" type="submit">Install</button>
+                </form>
+              </div>
+            </article>
+          {% else %}
+            <div class="empty-shop">
+              <span class="support-tag">Empty Libery</span>
+              <h3>No Claimed Games Yet</h3>
+              <p>Go to the shop, claim a free game, and it will appear here.</p>
+              <a class="steam-button" href="/shop">Open Shop</a>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -44,19 +44,23 @@ Gexora login flow is ready:
 
 ```text
 SECRET_KEY=<random long secret for Flask sessions>
-ADMIN_PASSWORD=<private admin shop password>
-GEXORA_LOGIN_URL=https://gexora.onrender.com/login
+GEXORA_LOGIN_URL=https://gexora.onrender.com/adam-studio-login
 GEXORA_REGISTER_URL=https://gexora.onrender.com/register
 GEXORA_SHARED_SECRET=<same private secret used by Gexora return links>
+ADAM_STUDIO_OWNER_EMAILS=coolsadam00@gmail.com
+ADAM_STUDIO_OWNER_USERNAMES=adminadam2155,coolsadam00
 ```
 
-The Gexora return URL for Adam Studio is:
+Set this on the Gexora service too:
 
 ```text
-https://<your-adam-studio-site>/shop/gexora-return?username=<name>&token=<hmac>
+ADAM_STUDIO_RETURN_URL=https://<your-adam-studio-site>/shop/gexora-return
+GEXORA_SHARED_SECRET=<same private secret>
 ```
 
-The `token` must be an HMAC-SHA256 of the username using `GEXORA_SHARED_SECRET`.
+Gexora sends `username`, `email`, `admin`, and `token` back to Adam Studio.
+The `token` is an HMAC-SHA256 of `username|email|admin` using
+`GEXORA_SHARED_SECRET`.
 
 ## Files needed
 

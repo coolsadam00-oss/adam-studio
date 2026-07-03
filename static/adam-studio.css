@@ -1112,6 +1112,136 @@ footer nav a:focus {
   font: inherit;
 }
 
+.shop-body {
+  color: #f7f3eb;
+  background:
+    radial-gradient(circle at 16% 0%, rgba(197, 155, 69, 0.24), transparent 30%),
+    radial-gradient(circle at 88% 12%, rgba(255, 255, 255, 0.08), transparent 26%),
+    linear-gradient(180deg, #050505 0%, #15110b 48%, #080808 100%);
+}
+
+.shop-header {
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom-color: var(--line);
+}
+
+.shop-header .brand,
+.shop-header nav a {
+  color: var(--ink);
+}
+
+.shop-header nav a:hover,
+.shop-header nav a:focus,
+.shop-header nav a[aria-current="page"] {
+  color: var(--gold-dark);
+}
+
+.shop-hero-copy p:first-child,
+.steam-toolbar p,
+.library-strip p,
+.admin-heading p {
+  color: var(--gold);
+}
+
+.shop-account-panel,
+.steam-sidebar,
+.library-strip,
+.admin-shop,
+.hidden-admin-panel {
+  border-color: rgba(197, 155, 69, 0.24);
+  background:
+    linear-gradient(145deg, rgba(197, 155, 69, 0.12), transparent),
+    rgba(17, 17, 17, 0.92);
+}
+
+.shop-account-panel .support-tag,
+.hidden-admin-panel .support-tag {
+  color: var(--gold);
+}
+
+.steam-button,
+.google-login {
+  color: var(--ink);
+  background: linear-gradient(135deg, #e5c36e, var(--gold));
+}
+
+.steam-button.secondary {
+  color: var(--paper);
+  background: linear-gradient(135deg, #2a2926, #111111);
+  border: 1px solid rgba(197, 155, 69, 0.3);
+}
+
+.steam-button.danger {
+  color: #ffffff;
+  background: linear-gradient(135deg, #8b1d1d, #4e1111);
+}
+
+.steam-sidebar span,
+.steam-sidebar a:hover,
+.steam-sidebar a:focus {
+  color: var(--gold);
+}
+
+.steam-sidebar a:hover,
+.steam-sidebar a:focus {
+  background: rgba(197, 155, 69, 0.12);
+}
+
+.steam-card {
+  border-color: rgba(197, 155, 69, 0.18);
+  background: #171717;
+}
+
+.steam-cover {
+  background:
+    radial-gradient(circle at 26% 18%, rgba(255, 255, 255, 0.24), transparent 24%),
+    linear-gradient(135deg, var(--cover), #050505);
+}
+
+.price-pill {
+  color: #f4e6c6;
+  background: #080808;
+  border: 1px solid rgba(197, 155, 69, 0.2);
+}
+
+.empty-shop {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 12px;
+  min-height: 240px;
+  align-content: center;
+  padding: clamp(24px, 5vw, 46px);
+  border: 1px solid rgba(197, 155, 69, 0.24);
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, rgba(197, 155, 69, 0.12), transparent),
+    rgba(17, 17, 17, 0.9);
+}
+
+.empty-shop h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(30px, 5vw, 58px);
+  line-height: 0.98;
+}
+
+.empty-shop p {
+  max-width: 620px;
+  margin: 0;
+  color: #cfc7ba;
+  font-size: 18px;
+  line-height: 1.55;
+}
+
+.library-shell {
+  grid-template-columns: 1fr;
+}
+
+.shop-footer {
+  background: var(--paper);
+  border-top-color: var(--line);
+}
+
 .help-form label {
   display: grid;
   gap: 8px;

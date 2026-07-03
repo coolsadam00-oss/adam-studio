@@ -62,51 +62,57 @@ def init_shop_db():
             )
             """
         )
-        count = db.execute("SELECT COUNT(*) FROM shop_games").fetchone()[0]
-        if count == 0:
-            db.executemany(
-                """
-                INSERT INTO shop_games
-                    (title, description, price_cents, download_url, file_name, cover_color, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-                """,
-                [
-                    (
-                        "Gexora Starter Pack",
-                        "A free starter drop for new Gexora players.",
-                        0,
-                        "https://gexora.onrender.com",
-                        "",
-                        "#0e7a9a",
-                        now_iso(),
-                    ),
-                    (
-                        "Adam Studio Prototype",
-                        "Early access style slot for an upcoming Adam Studio game.",
-                        499,
-                        "",
-                        "",
-                        "#7346d3",
-                        now_iso(),
-                    ),
-                    (
-                        "Community Test Build",
-                        "A free test build placeholder that players can claim.",
-                        0,
-                        "https://gexora.onrender.com",
-                        "",
-                        "#427a2f",
-                        now_iso(),
-                    ),
-                ],
+        db.execute(
+            """
+            DELETE FROM shop_games
+            WHERE title IN (
+                'Gexora Starter Pack',
+                'Adam Studio Prototype',
+                'Community Test Build'
             )
+            """
+        )
 
 
 def current_shop_user():
     username = session.get("gexora_username")
     if not username:
         return None
-    return {"id": username, "username": username}
+    return {
+        "id": username,
+        "username": username,
+        "email": session.get("gexora_email", ""),
+        "is_admin": bool(session.get("gexora_is_admin")),
+    }
+
+
+def shop_owner_emails():
+    values = os.environ.get("ADAM_STUDIO_OWNER_EMAILS", "coolsadam00@gmail.com")
+    return {value.strip().lower() for value in values.split(",") if value.strip()}
+
+
+def shop_owner_usernames():
+    values = os.environ.get("ADAM_STUDIO_OWNER_USERNAMES", "adminadam2155,coolsadam00")
+    return {value.strip().lower() for value in values.split(",") if value.strip()}
+
+
+def is_shop_admin(user=None):
+    user = user or current_shop_user()
+    if not user:
+        return False
+    return bool(
+        user.get("is_admin")
+        or user.get("email", "").lower() in shop_owner_emails()
+        or user.get("username", "").lower() in shop_owner_usernames()
+    )
+
+
+def gexora_login_url():
+    base = os.environ.get(
+        "GEXORA_LOGIN_URL",
+        "https://gexora.onrender.com/adam-studio-login",
+    )
+    return base
 
 
 def price_label(price_cents):
@@ -138,11 +144,38 @@ def shop():
         "shop.html",
         adam_studio_home_url="/",
         games=games,
-        gexora_login_url=os.environ.get("GEXORA_LOGIN_URL", "https://gexora.onrender.com/login"),
+        gexora_login_url=gexora_login_url(),
         gexora_register_url=os.environ.get("GEXORA_REGISTER_URL", "https://gexora.onrender.com/register"),
-        is_admin=session.get("shop_admin") is True,
+        is_admin=is_shop_admin(user),
         message=request.args.get("message", ""),
         owned_ids=owned_ids,
+        user=user,
+    )
+
+
+@app.route("/libery")
+def libery():
+    init_shop_db()
+    user = current_shop_user()
+    games = []
+    if user:
+        with get_shop_db() as db:
+            games = db.execute(
+                """
+                SELECT shop_games.*
+                FROM shop_games
+                JOIN library ON library.game_id = shop_games.id
+                WHERE library.user_id = ?
+                ORDER BY library.id DESC
+                """,
+                (user["id"],),
+            ).fetchall()
+    return render_template(
+        "libery.html",
+        adam_studio_home_url="/",
+        games=games,
+        gexora_login_url=gexora_login_url(),
+        message=request.args.get("message", ""),
         user=user,
     )
 
@@ -150,17 +183,22 @@ def shop():
 @app.route("/shop/gexora-return")
 def shop_gexora_return():
     username = clean_field(request.args.get("username"), 40).lower()
+    email = clean_field(request.args.get("email"), 254).lower()
+    is_admin_value = "1" if request.args.get("admin") == "1" else "0"
     token = request.args.get("token") or ""
     shared_secret = os.environ.get("GEXORA_SHARED_SECRET", "")
     expected = ""
     if username and shared_secret:
+        payload = "|".join([username, email, is_admin_value])
         expected = hmac.new(
             shared_secret.encode("utf-8"),
-            username.encode("utf-8"),
+            payload.encode("utf-8"),
             hashlib.sha256,
         ).hexdigest()
     if username and expected and hmac.compare_digest(token, expected):
         session["gexora_username"] = username
+        session["gexora_email"] = email
+        session["gexora_is_admin"] = is_admin_value == "1"
         return redirect(url_for("shop", message="Gexora login connected."))
     return redirect(url_for("shop", message="Gexora login return is not configured yet."))
 
@@ -168,6 +206,8 @@ def shop_gexora_return():
 @app.post("/shop/logout")
 def shop_logout():
     session.pop("gexora_username", None)
+    session.pop("gexora_email", None)
+    session.pop("gexora_is_admin", None)
     return redirect(url_for("shop", message="Logged out."))
 
 
@@ -176,7 +216,7 @@ def claim_game(game_id):
     init_shop_db()
     user = current_shop_user()
     if not user:
-        return redirect(os.environ.get("GEXORA_LOGIN_URL", "https://gexora.onrender.com/login"))
+        return redirect(gexora_login_url())
     with get_shop_db() as db:
         game = db.execute("SELECT * FROM shop_games WHERE id = ?", (game_id,)).fetchone()
         if not game:
@@ -187,7 +227,7 @@ def claim_game(game_id):
             "INSERT OR IGNORE INTO library (user_id, game_id, created_at) VALUES (?, ?, ?)",
             (user["id"], game_id, now_iso()),
         )
-    return redirect(url_for("shop", message=f"{game['title']} added to your library."))
+    return redirect(url_for("libery", message=f"{game['title']} added to your library."))
 
 
 @app.post("/shop/install/<int:game_id>")
@@ -195,7 +235,7 @@ def install_game(game_id):
     init_shop_db()
     user = current_shop_user()
     if not user:
-        return redirect(os.environ.get("GEXORA_LOGIN_URL", "https://gexora.onrender.com/login"))
+        return redirect(gexora_login_url())
     with get_shop_db() as db:
         row = db.execute(
             """
@@ -215,26 +255,10 @@ def install_game(game_id):
     return redirect(url_for("shop", message="No installer is uploaded yet."))
 
 
-@app.route("/shop/admin-login", methods=["GET", "POST"])
-def shop_admin_login():
-    if request.method == "GET":
-        return render_template(
-            "shop_admin_login.html",
-            adam_studio_home_url="/",
-            message=request.args.get("message", ""),
-        )
-
-    admin_password = os.environ.get("ADMIN_PASSWORD", "2155")
-    if request.form.get("password") == admin_password:
-        session["shop_admin"] = True
-        return redirect(url_for("shop", message="Admin mode enabled."))
-    return redirect(url_for("shop_admin_login", message="Wrong admin password."))
-
-
 @app.post("/shop/admin")
 def shop_admin():
     init_shop_db()
-    if session.get("shop_admin") is not True:
+    if not is_shop_admin():
         return redirect(url_for("shop", message="Admin login required."))
     action = request.form.get("action")
     with get_shop_db() as db:
@@ -269,6 +293,16 @@ def shop_admin():
                 "UPDATE shop_games SET price_cents = ? WHERE id = ?",
                 (price, game_id),
             )
+        elif action == "delete":
+            game_id = int(request.form.get("game_id", "0") or 0)
+            game = db.execute("SELECT file_name FROM shop_games WHERE id = ?", (game_id,)).fetchone()
+            if game and game["file_name"]:
+                try:
+                    (UPLOAD_DIR / game["file_name"]).unlink()
+                except FileNotFoundError:
+                    pass
+            db.execute("DELETE FROM library WHERE game_id = ?", (game_id,))
+            db.execute("DELETE FROM shop_games WHERE id = ?", (game_id,))
     return redirect(url_for("shop", message="Shop updated."))
 
 

@@ -20,6 +20,7 @@
       <a href="/#focus">Focus</a>
       <a href="/#team">Team</a>
       <a href="/shop" aria-current="page">Shop</a>
+      <a href="/libery">Libery</a>
       <a href="/help">Help</a>
     </nav>
     <a class="header-cta" href="https://discord.gg/DfBEkNneb">Join Discord</a>
@@ -40,6 +41,9 @@
           <span class="support-tag">Gexora Account</span>
           <h2>{{ user.username }}</h2>
           <p>Your Adam Studio game library is connected to this Gexora account.</p>
+          {% if is_admin %}
+            <a class="steam-button secondary" href="#admin">Admin Tab</a>
+          {% endif %}
           <form action="/shop/logout" method="post">
             <button class="steam-button ghost" type="submit">Log Out</button>
           </form>
@@ -59,7 +63,8 @@
       <div class="steam-sidebar">
         <span>Store</span>
         <a href="#shop-title">Featured</a>
-        <a href="#library">Library</a>
+        <a href="/libery">Libery</a>
+        {% if is_admin %}<a href="#admin">Admin</a>{% endif %}
       </div>
 
       <div class="steam-content">
@@ -100,16 +105,14 @@
                 </div>
               </div>
             </article>
+          {% else %}
+            <div class="empty-shop">
+              <span class="support-tag">No Games Yet</span>
+              <h3>Adam Studio Shop Is Empty</h3>
+              <p>The owner can add real games from the admin tab after logging in through Gexora.</p>
+            </div>
           {% endfor %}
         </div>
-
-        <section id="library" class="library-strip">
-          <div>
-            <p>Your Library</p>
-            <h2>Claimed Games</h2>
-          </div>
-          <span>{% if user %}{{ owned_ids|length }} installed-ready{% else %}Log in to see your library{% endif %}</span>
-        </section>
 
         {% if is_admin %}
           <section id="admin" class="admin-shop">
@@ -139,6 +142,13 @@
                   <input name="price" type="number" min="0" step="0.01" value="{{ '%.2f'|format(game.price_cents / 100) }}">
                   <button class="steam-button small secondary" type="submit">Save Price</button>
                 </form>
+                <form action="/shop/admin" method="post">
+                  <input type="hidden" name="action" value="delete">
+                  <input type="hidden" name="game_id" value="{{ game.id }}">
+                  <strong>{{ game.title }}</strong>
+                  <span class="price-pill">Remove</span>
+                  <button class="steam-button small danger" type="submit">Delete</button>
+                </form>
               {% endfor %}
             </div>
           </section>
@@ -154,6 +164,7 @@
       <a href="https://gexora.onrender.com">Gaming Website</a>
       <a href="https://discord.gg/DfBEkNneb">Discord</a>
       <a href="/shop">Shop</a>
+      <a href="/libery">Libery</a>
       <a href="/help">Help</a>
     </nav>
   </footer>
