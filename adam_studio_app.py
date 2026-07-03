@@ -107,11 +107,15 @@ def is_shop_admin(user=None):
     )
 
 
-def gexora_login_url():
-    return os.environ.get(
+def gexora_login_url(force=False):
+    url = os.environ.get(
         "GEXORA_LOGIN_URL",
         "https://gexora.onrender.com/adam-studio-login",
     )
+    if not force:
+        return url
+    separator = "&" if "?" in url else "?"
+    return f"{url}{separator}force=1"
 
 
 def gexora_register_url():
@@ -218,7 +222,7 @@ def shop_logout():
     session.pop("gexora_username", None)
     session.pop("gexora_email", None)
     session.pop("gexora_is_admin", None)
-    return redirect(url_for("shop", message="Logged out."))
+    return redirect(gexora_login_url(force=True))
 
 
 @app.post("/shop/claim/<int:game_id>")
