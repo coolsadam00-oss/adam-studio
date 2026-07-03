@@ -80,7 +80,11 @@
           {% for game in games %}
             <article class="steam-card">
               <div class="steam-cover" style="--cover: {{ game.cover_color }}">
-                <span>{{ game.title[:2] }}</span>
+                {% if game.thumbnail %}
+                  <img src="{% if game.thumbnail.startswith('http') %}{{ game.thumbnail }}{% else %}/static/shop_uploads/{{ game.thumbnail }}{% endif %}" alt="">
+                {% else %}
+                  <span>{{ game.title[:2] }}</span>
+                {% endif %}
               </div>
               <div class="steam-card-body">
                 <div>
@@ -93,7 +97,7 @@
                     <a class="steam-button small" href="{{ gexora_login_url }}">Gexora Login</a>
                   {% elif game.id in owned_ids %}
                     <form action="/shop/install/{{ game.id }}" method="post">
-                      <button class="steam-button small" type="submit">Install</button>
+                      <button class="steam-button small" type="submit">Install / Download</button>
                     </form>
                   {% elif game.price_cents == 0 %}
                     <form action="/shop/claim/{{ game.id }}" method="post">
@@ -127,20 +131,28 @@
               <input name="title" required maxlength="120" placeholder="Game title">
               <input name="price" type="number" min="0" step="0.01" placeholder="Price, 0 = free">
               <input name="cover_color" type="color" value="#1b2838" aria-label="Cover color">
-              <input name="download_url" placeholder="Install URL optional">
+              <input name="download_url" placeholder="Game download URL optional">
+              <input name="thumbnail_url" placeholder="Thumbnail image URL optional">
               <textarea name="description" maxlength="800" rows="3" placeholder="Game description"></textarea>
-              <input name="game_file" type="file">
+              <input name="thumbnail_file" type="file" accept="image/*">
+              <input name="game_file" type="file" accept=".zip,.exe,.msi,.apk,.html,.rar,.7z,application/zip">
               <button class="steam-button" type="submit">Upload Game</button>
             </form>
 
             <div class="price-editor">
               {% for game in games %}
-                <form action="/shop/admin" method="post">
-                  <input type="hidden" name="action" value="price">
+                <form action="/shop/admin" method="post" enctype="multipart/form-data">
+                  <input type="hidden" name="action" value="update">
                   <input type="hidden" name="game_id" value="{{ game.id }}">
-                  <strong>{{ game.title }}</strong>
+                  <input name="title" value="{{ game.title }}" maxlength="120">
                   <input name="price" type="number" min="0" step="0.01" value="{{ '%.2f'|format(game.price_cents / 100) }}">
-                  <button class="steam-button small secondary" type="submit">Save Price</button>
+                  <input name="cover_color" type="color" value="{{ game.cover_color }}" aria-label="Cover color">
+                  <input name="download_url" value="{{ game.download_url }}" placeholder="Game download URL">
+                  <input name="thumbnail_url" value="{% if game.thumbnail.startswith('http') %}{{ game.thumbnail }}{% endif %}" placeholder="Thumbnail URL">
+                  <textarea name="description" maxlength="800" rows="3">{{ game.description }}</textarea>
+                  <input name="thumbnail_file" type="file" accept="image/*">
+                  <input name="game_file" type="file" accept=".zip,.exe,.msi,.apk,.html,.rar,.7z,application/zip">
+                  <button class="steam-button small secondary" type="submit">Save Game</button>
                 </form>
                 <form action="/shop/admin" method="post">
                   <input type="hidden" name="action" value="delete">

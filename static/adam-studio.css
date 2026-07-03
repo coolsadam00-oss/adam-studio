@@ -970,6 +970,14 @@ footer nav a:focus {
   text-transform: uppercase;
 }
 
+.steam-cover img {
+  width: 100%;
+  height: 100%;
+  min-height: 190px;
+  object-fit: cover;
+  display: block;
+}
+
 .steam-card-body {
   min-height: 236px;
   display: grid;
@@ -1049,13 +1057,21 @@ footer nav a:focus {
 
 .price-editor form {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 130px auto;
+  grid-template-columns: minmax(0, 1fr) 130px 72px;
   gap: 10px;
   align-items: center;
   padding: 12px;
   border: 1px solid rgba(102, 192, 244, 0.12);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.04);
+}
+
+.price-editor form input[name="download_url"],
+.price-editor form input[name="thumbnail_url"],
+.price-editor form textarea,
+.price-editor form input[type="file"],
+.price-editor form button {
+  grid-column: 1 / -1;
 }
 
 .price-editor strong {

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Logged Out - Adam Studio</title>
+  <link rel="icon" href="/static/adam-studio-logo.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="/static/adam-studio.css">
+</head>
+<body class="shop-body">
+  <main class="hidden-admin-page">
+    <a class="brand" href="{{ adam_studio_home_url|default('/') }}" aria-label="Adam Studio home">
+      <img src="/static/adam-studio-logo.jpg" alt="Adam Studio logo">
+      <span>Adam Studio</span>
+    </a>
+    <section class="hidden-admin-panel">
+      <span class="support-tag">Logged Out</span>
+      <h1>Choose Login</h1>
+      <p class="form-note">Continue can use your Gexora session. Manual login makes you sign in again on Gexora.</p>
+      <a class="steam-button" href="{{ continue_url }}">Continue</a>
+      <a class="steam-button secondary" href="{{ manual_login_url }}">Manual Login</a>
+      <a class="google-login" href="/shop">Stay Logged Out</a>
+    </section>
+  </main>
+</body>
+</html>

@@ -8,7 +8,7 @@ from email.message import EmailMessage
 from email.utils import parseaddr
 from pathlib import Path
 
-from flask import Flask, redirect, render_template, request, session, url_for
+from flask import Flask, redirect, render_template, request, send_from_directory, session, url_for
 from werkzeug.utils import secure_filename
 
 
@@ -51,6 +51,11 @@ def init_shop_db():
             )
             """
         )
+        columns = {
+            row["name"] for row in db.execute("PRAGMA table_info(shop_games)").fetchall()
+        }
+        if "thumbnail" not in columns:
+            db.execute("ALTER TABLE shop_games ADD COLUMN thumbnail TEXT NOT NULL DEFAULT ''")
         db.execute(
             """
             CREATE TABLE IF NOT EXISTS library (
@@ -72,6 +77,24 @@ def init_shop_db():
             )
             """
         )
+
+
+def saved_upload(form_name):
+    file = request.files.get(form_name)
+    if not file or not file.filename:
+        return ""
+    file_name = f"{int(datetime.utcnow().timestamp())}-{secure_filename(file.filename)}"
+    file.save(UPLOAD_DIR / file_name)
+    return file_name
+
+
+def cleanup_upload(file_name):
+    if not file_name:
+        return
+    try:
+        (UPLOAD_DIR / file_name).unlink()
+    except FileNotFoundError:
+        pass
 
 
 def current_shop_user():
@@ -222,7 +245,17 @@ def shop_logout():
     session.pop("gexora_username", None)
     session.pop("gexora_email", None)
     session.pop("gexora_is_admin", None)
-    return redirect(gexora_login_url(force=True))
+    return redirect(url_for("shop_logout_choice"))
+
+
+@app.route("/shop/logout-choice")
+def shop_logout_choice():
+    return render_template(
+        "shop_logout_choice.html",
+        adam_studio_home_url="/",
+        continue_url=gexora_login_url(),
+        manual_login_url=gexora_login_url(force=True),
+    )
 
 
 @app.post("/shop/claim/<int:game_id>")
@@ -263,7 +296,7 @@ def install_game(game_id):
     if not row:
         return redirect(url_for("shop", message="Claim the game before installing."))
     if row["file_name"]:
-        return redirect(url_for("static", filename=f"shop_uploads/{row['file_name']}"))
+        return send_from_directory(UPLOAD_DIR, row["file_name"], as_attachment=True)
     if row["download_url"]:
         return redirect(row["download_url"])
     return redirect(url_for("shop", message="No installer is uploaded yet."))
@@ -277,17 +310,14 @@ def shop_admin():
     action = request.form.get("action")
     with get_shop_db() as db:
         if action == "create":
-            file = request.files.get("game_file")
-            file_name = ""
-            if file and file.filename:
-                file_name = f"{int(datetime.utcnow().timestamp())}-{secure_filename(file.filename)}"
-                file.save(UPLOAD_DIR / file_name)
+            file_name = saved_upload("game_file")
+            thumbnail_file = saved_upload("thumbnail_file")
             price = max(0, int(float(request.form.get("price", "0") or 0) * 100))
             db.execute(
                 """
                 INSERT INTO shop_games
-                    (title, description, price_cents, download_url, file_name, cover_color, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                    (title, description, price_cents, download_url, file_name, cover_color, thumbnail, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     clean_field(request.form.get("title"), 120) or "Untitled Game",
@@ -297,24 +327,54 @@ def shop_admin():
                     clean_field(request.form.get("download_url"), 500),
                     file_name,
                     clean_field(request.form.get("cover_color"), 16) or "#1b2838",
+                    thumbnail_file or clean_field(request.form.get("thumbnail_url"), 500),
                     now_iso(),
                 ),
             )
-        elif action == "price":
+        elif action == "update":
             game_id = int(request.form.get("game_id", "0") or 0)
             price = max(0, int(float(request.form.get("price", "0") or 0) * 100))
+            game = db.execute("SELECT * FROM shop_games WHERE id = ?", (game_id,)).fetchone()
+            if not game:
+                return redirect(url_for("shop", message="Game not found."))
+            file_name = saved_upload("game_file")
+            thumbnail_file = saved_upload("thumbnail_file")
+            if file_name and game["file_name"]:
+                cleanup_upload(game["file_name"])
+            if thumbnail_file and game["thumbnail"] and not game["thumbnail"].startswith(("http://", "https://")):
+                cleanup_upload(game["thumbnail"])
             db.execute(
-                "UPDATE shop_games SET price_cents = ? WHERE id = ?",
-                (price, game_id),
+                """
+                UPDATE shop_games
+                SET title = ?,
+                    description = ?,
+                    price_cents = ?,
+                    download_url = ?,
+                    file_name = CASE WHEN ? != '' THEN ? ELSE file_name END,
+                    cover_color = ?,
+                    thumbnail = CASE WHEN ? != '' THEN ? ELSE thumbnail END
+                WHERE id = ?
+                """,
+                (
+                    clean_field(request.form.get("title"), 120) or game["title"],
+                    clean_message(request.form.get("description"), 800) or game["description"],
+                    price,
+                    clean_field(request.form.get("download_url"), 500),
+                    file_name,
+                    file_name,
+                    clean_field(request.form.get("cover_color"), 16) or game["cover_color"],
+                    thumbnail_file or clean_field(request.form.get("thumbnail_url"), 500),
+                    thumbnail_file or clean_field(request.form.get("thumbnail_url"), 500),
+                    game_id,
+                ),
             )
         elif action == "delete":
             game_id = int(request.form.get("game_id", "0") or 0)
-            game = db.execute("SELECT file_name FROM shop_games WHERE id = ?", (game_id,)).fetchone()
-            if game and game["file_name"]:
-                try:
-                    (UPLOAD_DIR / game["file_name"]).unlink()
-                except FileNotFoundError:
-                    pass
+            game = db.execute("SELECT file_name, thumbnail FROM shop_games WHERE id = ?", (game_id,)).fetchone()
+            if game:
+                cleanup_upload(game["file_name"])
+                if game["thumbnail"] and not game["thumbnail"].startswith(("http://", "https://")):
+                    cleanup_upload(game["thumbnail"])
             db.execute("DELETE FROM library WHERE game_id = ?", (game_id,))
             db.execute("DELETE FROM shop_games WHERE id = ?", (game_id,))
     return redirect(url_for("shop", message="Shop updated."))

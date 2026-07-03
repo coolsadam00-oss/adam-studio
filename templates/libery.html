@@ -65,7 +65,11 @@
           {% for game in games %}
             <article class="steam-card">
               <div class="steam-cover" style="--cover: {{ game.cover_color }}">
-                <span>{{ game.title[:2] }}</span>
+                {% if game.thumbnail %}
+                  <img src="{% if game.thumbnail.startswith('http') %}{{ game.thumbnail }}{% else %}/static/shop_uploads/{{ game.thumbnail }}{% endif %}" alt="">
+                {% else %}
+                  <span>{{ game.title[:2] }}</span>
+                {% endif %}
               </div>
               <div class="steam-card-body">
                 <div>
@@ -73,7 +77,7 @@
                   <p>{{ game.description }}</p>
                 </div>
                 <form action="/shop/install/{{ game.id }}" method="post">
-                  <button class="steam-button" type="submit">Install</button>
+                  <button class="steam-button" type="submit">Install / Download</button>
                 </form>
               </div>
             </article>
