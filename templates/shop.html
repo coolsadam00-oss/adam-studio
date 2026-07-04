@@ -23,17 +23,12 @@
       <a href="/libery">Libery</a>
       <a href="/help">Help</a>
     </nav>
-    <a class="header-cta" href="https://discord.gg/DfBEkNneb">Join Discord</a>
-  </header>
-
-  <main class="shop-page">
-    <section class="shop-hero">
-      <div class="shop-hero-copy">
-        <p>Adam Studio x Gexora</p>
-        <h1>Game Shop</h1>
-        <p>Log in with your Gexora account, claim free games, install builds, and browse premium games from Adam Studio.</p>
-      </div>
-      <div id="account" class="shop-account-panel">
+    <div class="header-actions">
+      <a class="header-cta" href="https://discord.gg/DfBEkNneb">Join Discord</a>
+      <button class="profile-toggle" type="button" aria-expanded="false" aria-controls="profileMenu">
+        {{ (user.username if user else 'G')[:1]|upper }}
+      </button>
+      <div id="profileMenu" class="profile-popover" hidden>
         {% if message %}
           <p class="shop-message">{{ message }}</p>
         {% endif %}
@@ -56,6 +51,16 @@
             <a class="steam-button secondary" href="{{ gexora_register_url }}">Create On Gexora</a>
           </div>
         {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <main class="shop-page">
+    <section class="shop-hero">
+      <div class="shop-hero-copy">
+        <p>Adam Studio x Gexora</p>
+        <h1>Game Shop</h1>
+        <p>Log in with your Gexora account, claim free games, install builds, and browse premium games from Adam Studio.</p>
       </div>
     </section>
 
@@ -135,5 +140,6 @@
       <a href="/help">Help</a>
     </nav>
   </footer>
+  <script src="/static/profile-menu.js"></script>
 </body>
 </html>

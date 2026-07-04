@@ -19,7 +19,24 @@
       <a href="/admin" aria-current="page">Admin</a>
       <a href="/help">Help</a>
     </nav>
-    <a class="header-cta" href="https://discord.gg/DfBEkNneb">Join Discord</a>
+    <div class="header-actions">
+      <a class="header-cta" href="https://discord.gg/DfBEkNneb">Join Discord</a>
+      <button class="profile-toggle" type="button" aria-expanded="false" aria-controls="profileMenu">
+        {{ user.username[:1]|upper }}
+      </button>
+      <div id="profileMenu" class="profile-popover" hidden>
+        {% if message %}
+          <p class="shop-message">{{ message }}</p>
+        {% endif %}
+        <span class="support-tag">Gexora Account</span>
+        <h2>{{ user.username }}</h2>
+        <p>Your Adam Studio admin tools are connected to this Gexora account.</p>
+        <a class="steam-button secondary" href="/admin">Admin</a>
+        <form action="/shop/logout" method="post">
+          <button class="steam-button ghost" type="submit">Log Out</button>
+        </form>
+      </div>
+    </div>
   </header>
 
   <main class="shop-page">
@@ -28,14 +45,6 @@
         <p>Owner Tools</p>
         <h1>Admin</h1>
         <p>Upload browser ZIPs or polished desktop installers, set prices, change icons, replace files, or remove games from the Adam Studio shop.</p>
-      </div>
-      <div class="shop-account-panel">
-        {% if message %}
-          <p class="shop-message">{{ message }}</p>
-        {% endif %}
-        <span class="support-tag">Signed In</span>
-        <h2>{{ user.username }}</h2>
-        <a class="steam-button secondary" href="/shop">Back To Shop</a>
       </div>
     </section>
 
@@ -140,5 +149,6 @@
       });
     }());
   </script>
+  <script src="/static/profile-menu.js"></script>
 </body>
 </html>

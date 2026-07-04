@@ -21,17 +21,12 @@
       <a href="/libery" aria-current="page">Libery</a>
       <a href="/help">Help</a>
     </nav>
-    <a class="header-cta" href="https://discord.gg/DfBEkNneb">Join Discord</a>
-  </header>
-
-  <main class="shop-page">
-    <section class="shop-hero library-hero">
-      <div class="shop-hero-copy">
-        <p>Adam Studio</p>
-        <h1>Libery</h1>
-        <p>Your claimed Adam Studio games live here after you log in with your Gexora account.</p>
-      </div>
-      <div class="shop-account-panel">
+    <div class="header-actions">
+      <a class="header-cta" href="https://discord.gg/DfBEkNneb">Join Discord</a>
+      <button class="profile-toggle" type="button" aria-expanded="false" aria-controls="profileMenu">
+        {{ (user.username if user else 'G')[:1]|upper }}
+      </button>
+      <div id="profileMenu" class="profile-popover" hidden>
         {% if message %}
           <p class="shop-message">{{ message }}</p>
         {% endif %}
@@ -48,6 +43,16 @@
           <p>Log in on Gexora to see your Adam Studio libery.</p>
           <a class="steam-button" href="{{ gexora_login_url }}">Log In On Gexora</a>
         {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <main class="shop-page">
+    <section class="shop-hero library-hero">
+      <div class="shop-hero-copy">
+        <p>Adam Studio</p>
+        <h1>Libery</h1>
+        <p>Your claimed Adam Studio games live here after you log in with your Gexora account.</p>
       </div>
     </section>
 
@@ -95,5 +100,6 @@
       </div>
     </section>
   </main>
+  <script src="/static/profile-menu.js"></script>
 </body>
 </html>
