@@ -777,8 +777,10 @@ footer nav a:focus {
 .shop-login-form input,
 .admin-login input,
 .admin-upload input,
+.admin-upload select,
 .admin-upload textarea,
-.price-editor input {
+.price-editor input,
+.price-editor select {
   width: 100%;
   min-height: 46px;
   padding: 12px 13px;
@@ -796,10 +798,19 @@ footer nav a:focus {
 .shop-login-form input:focus,
 .admin-login input:focus,
 .admin-upload input:focus,
+.admin-upload select:focus,
 .admin-upload textarea:focus,
-.price-editor input:focus {
+.price-editor input:focus,
+.price-editor select:focus {
   outline: 3px solid rgba(102, 192, 244, 0.18);
   border-color: #66c0f4;
+}
+
+.installer-note {
+  margin: 0;
+  color: #acb8c5;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .login-actions {

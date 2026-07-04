@@ -8,7 +8,7 @@ from email.message import EmailMessage
 from email.utils import parseaddr
 from pathlib import Path
 
-from flask import Flask, redirect, render_template, request, send_from_directory, session, url_for
+from flask import Flask, abort, redirect, render_template, request, send_file, send_from_directory, session, url_for
 from werkzeug.utils import secure_filename
 
 
@@ -17,7 +17,18 @@ app.secret_key = os.environ.get("SECRET_KEY", "change-this-adam-studio-secret")
 BASE_DIR = Path(__file__).resolve().parent
 SHOP_DB = Path(os.environ.get("SHOP_DB", BASE_DIR / "shop.db"))
 UPLOAD_DIR = BASE_DIR / "static" / "shop_uploads"
+UPLOADS_DIR = BASE_DIR / "uploads"
+INSTALLERS_DIR = UPLOADS_DIR / "installers"
+ICONS_DIR = UPLOADS_DIR / "icons"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+INSTALLERS_DIR.mkdir(parents=True, exist_ok=True)
+ICONS_DIR.mkdir(parents=True, exist_ok=True)
+app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024 * 1024
+
+INSTALLER_EXTENSIONS = {".exe", ".msi"}
+BROWSER_EXTENSIONS = {".zip"}
+ICON_EXTENSIONS = {".ico", ".png"}
+THUMBNAIL_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 
 
 @app.route("/")
@@ -56,6 +67,10 @@ def init_shop_db():
         }
         if "thumbnail" not in columns:
             db.execute("ALTER TABLE shop_games ADD COLUMN thumbnail TEXT NOT NULL DEFAULT ''")
+        if "game_type" not in columns:
+            db.execute("ALTER TABLE shop_games ADD COLUMN game_type TEXT NOT NULL DEFAULT 'browser'")
+        if "icon_path" not in columns:
+            db.execute("ALTER TABLE shop_games ADD COLUMN icon_path TEXT NOT NULL DEFAULT ''")
         db.execute(
             """
             CREATE TABLE IF NOT EXISTS library (
@@ -79,22 +94,50 @@ def init_shop_db():
         )
 
 
-def saved_upload(form_name):
+def upload_extension(file):
+    return Path(file.filename or "").suffix.lower()
+
+
+def saved_upload(form_name, allowed_extensions=None, target_dir=UPLOAD_DIR, required=False, label="Upload"):
     file = request.files.get(form_name)
     if not file or not file.filename:
+        if required:
+            raise ValueError(f"{label} is required.")
         return ""
+    if allowed_extensions and upload_extension(file) not in allowed_extensions:
+        allowed = ", ".join(sorted(allowed_extensions))
+        raise ValueError(f"{label} must be one of: {allowed}.")
     file_name = f"{int(datetime.utcnow().timestamp())}-{secure_filename(file.filename)}"
-    file.save(UPLOAD_DIR / file_name)
+    target_dir.mkdir(parents=True, exist_ok=True)
+    file.save(target_dir / file_name)
     return file_name
 
 
 def cleanup_upload(file_name):
     if not file_name:
         return
-    try:
-        (UPLOAD_DIR / file_name).unlink()
-    except FileNotFoundError:
-        pass
+    for directory in (UPLOAD_DIR, INSTALLERS_DIR, ICONS_DIR):
+        try:
+            (directory / file_name).unlink()
+        except FileNotFoundError:
+            pass
+
+
+def installer_file_path(file_name):
+    if not file_name:
+        return None
+    for directory in (INSTALLERS_DIR, UPLOAD_DIR):
+        path = directory / file_name
+        if path.exists():
+            return path
+    return None
+
+
+def validate_game_type(value):
+    value = (value or "browser").strip()
+    if value not in {"browser", "installer"}:
+        raise ValueError("Choose Browser Game (ZIP) or Desktop Game (Installer).")
+    return value
 
 
 def current_shop_user():
@@ -311,11 +354,31 @@ def install_game(game_id):
         ).fetchone()
     if not row:
         return redirect(url_for("shop", message="Claim the game before installing."))
+    if row["game_type"] == "installer" and row["file_name"]:
+        return redirect(url_for("download_game", game_id=game_id))
     if row["file_name"]:
         return send_from_directory(UPLOAD_DIR, row["file_name"], as_attachment=True)
     if row["download_url"]:
         return redirect(row["download_url"])
     return redirect(url_for("shop", message="No installer is uploaded yet."))
+
+
+@app.get("/download/<int:game_id>")
+def download_game(game_id):
+    init_shop_db()
+    with get_shop_db() as db:
+        row = db.execute("SELECT * FROM shop_games WHERE id = ?", (game_id,)).fetchone()
+    if not row or row["game_type"] != "installer" or not row["file_name"]:
+        abort(404)
+    path = installer_file_path(row["file_name"])
+    if not path:
+        abort(404)
+    return send_file(path, as_attachment=True, download_name=row["file_name"])
+
+
+@app.get("/uploads/icons/<path:file_name>")
+def uploaded_icon(file_name):
+    return send_from_directory(ICONS_DIR, file_name)
 
 
 @app.post("/shop/admin")
@@ -326,14 +389,35 @@ def shop_admin():
     action = request.form.get("action")
     with get_shop_db() as db:
         if action == "create":
-            file_name = saved_upload("game_file")
-            thumbnail_file = saved_upload("thumbnail_file")
+            try:
+                game_type = validate_game_type(request.form.get("game_type"))
+                if game_type == "installer":
+                    file_name = saved_upload(
+                        "installer_file",
+                        INSTALLER_EXTENSIONS,
+                        INSTALLERS_DIR,
+                        required=True,
+                        label="Installer",
+                    )
+                else:
+                    file_name = saved_upload(
+                        "game_file",
+                        BROWSER_EXTENSIONS,
+                        UPLOAD_DIR,
+                        required=True,
+                        label="Browser game ZIP",
+                    )
+                icon_file = saved_upload("icon_file", ICON_EXTENSIONS, ICONS_DIR, label="Icon")
+                thumbnail_file = saved_upload("thumbnail_file", THUMBNAIL_EXTENSIONS, UPLOAD_DIR, label="Thumbnail")
+            except ValueError as error:
+                return redirect(url_for("admin", message=str(error)))
             price = max(0, int(float(request.form.get("price", "0") or 0) * 100))
             db.execute(
                 """
                 INSERT INTO shop_games
-                    (title, description, price_cents, download_url, file_name, cover_color, thumbnail, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    (title, description, price_cents, download_url, file_name, cover_color,
+                     thumbnail, game_type, icon_path, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     clean_field(request.form.get("title"), 120) or "Untitled Game",
@@ -344,6 +428,8 @@ def shop_admin():
                     file_name,
                     clean_field(request.form.get("cover_color"), 16) or "#1b2838",
                     thumbnail_file or clean_field(request.form.get("thumbnail_url"), 500),
+                    game_type,
+                    icon_file,
                     now_iso(),
                 ),
             )
@@ -353,10 +439,20 @@ def shop_admin():
             game = db.execute("SELECT * FROM shop_games WHERE id = ?", (game_id,)).fetchone()
             if not game:
                 return redirect(url_for("shop", message="Game not found."))
-            file_name = saved_upload("game_file")
-            thumbnail_file = saved_upload("thumbnail_file")
+            try:
+                game_type = validate_game_type(request.form.get("game_type") or game["game_type"])
+                if game_type == "installer":
+                    file_name = saved_upload("installer_file", INSTALLER_EXTENSIONS, INSTALLERS_DIR, label="Installer")
+                else:
+                    file_name = saved_upload("game_file", BROWSER_EXTENSIONS, UPLOAD_DIR, label="Browser game ZIP")
+                icon_file = saved_upload("icon_file", ICON_EXTENSIONS, ICONS_DIR, label="Icon")
+                thumbnail_file = saved_upload("thumbnail_file", THUMBNAIL_EXTENSIONS, UPLOAD_DIR, label="Thumbnail")
+            except ValueError as error:
+                return redirect(url_for("admin", message=str(error)))
             if file_name and game["file_name"]:
                 cleanup_upload(game["file_name"])
+            if icon_file and game["icon_path"]:
+                cleanup_upload(game["icon_path"])
             if thumbnail_file and game["thumbnail"] and not game["thumbnail"].startswith(("http://", "https://")):
                 cleanup_upload(game["thumbnail"])
             db.execute(
@@ -368,7 +464,9 @@ def shop_admin():
                     download_url = ?,
                     file_name = CASE WHEN ? != '' THEN ? ELSE file_name END,
                     cover_color = ?,
-                    thumbnail = CASE WHEN ? != '' THEN ? ELSE thumbnail END
+                    thumbnail = CASE WHEN ? != '' THEN ? ELSE thumbnail END,
+                    game_type = ?,
+                    icon_path = CASE WHEN ? != '' THEN ? ELSE icon_path END
                 WHERE id = ?
                 """,
                 (
@@ -381,14 +479,18 @@ def shop_admin():
                     clean_field(request.form.get("cover_color"), 16) or game["cover_color"],
                     thumbnail_file or clean_field(request.form.get("thumbnail_url"), 500),
                     thumbnail_file or clean_field(request.form.get("thumbnail_url"), 500),
+                    game_type,
+                    icon_file,
+                    icon_file,
                     game_id,
                 ),
             )
         elif action == "delete":
             game_id = int(request.form.get("game_id", "0") or 0)
-            game = db.execute("SELECT file_name, thumbnail FROM shop_games WHERE id = ?", (game_id,)).fetchone()
+            game = db.execute("SELECT file_name, thumbnail, icon_path FROM shop_games WHERE id = ?", (game_id,)).fetchone()
             if game:
                 cleanup_upload(game["file_name"])
+                cleanup_upload(game["icon_path"])
                 if game["thumbnail"] and not game["thumbnail"].startswith(("http://", "https://")):
                     cleanup_upload(game["thumbnail"])
             db.execute("DELETE FROM library WHERE game_id = ?", (game_id,))

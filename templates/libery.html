@@ -67,6 +67,8 @@
               <div class="steam-cover" style="--cover: {{ game.cover_color }}">
                 {% if game.thumbnail %}
                   <img src="{% if game.thumbnail.startswith('http') %}{{ game.thumbnail }}{% else %}/static/shop_uploads/{{ game.thumbnail }}{% endif %}" alt="">
+                {% elif game.icon_path %}
+                  <img src="/uploads/icons/{{ game.icon_path }}" alt="">
                 {% else %}
                   <span>{{ game.title[:2] }}</span>
                 {% endif %}
@@ -77,7 +79,7 @@
                   <p>{{ game.description }}</p>
                 </div>
                 <form action="/shop/install/{{ game.id }}" method="post">
-                  <button class="steam-button" type="submit">Install / Download</button>
+                  <button class="steam-button" type="submit">{% if game.game_type == 'installer' %}Download Installer{% else %}Install / Download{% endif %}</button>
                 </form>
               </div>
             </article>

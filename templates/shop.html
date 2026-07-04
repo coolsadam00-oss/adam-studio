@@ -82,6 +82,8 @@
               <div class="steam-cover" style="--cover: {{ game.cover_color }}">
                 {% if game.thumbnail %}
                   <img src="{% if game.thumbnail.startswith('http') %}{{ game.thumbnail }}{% else %}/static/shop_uploads/{{ game.thumbnail }}{% endif %}" alt="">
+                {% elif game.icon_path %}
+                  <img src="/uploads/icons/{{ game.icon_path }}" alt="">
                 {% else %}
                   <span>{{ game.title[:2] }}</span>
                 {% endif %}
@@ -97,7 +99,7 @@
                     <a class="steam-button small" href="{{ gexora_login_url }}">Gexora Login</a>
                   {% elif game.id in owned_ids %}
                     <form action="/shop/install/{{ game.id }}" method="post">
-                      <button class="steam-button small" type="submit">Install / Download</button>
+                      <button class="steam-button small" type="submit">{% if game.game_type == 'installer' %}Download Installer{% else %}Install / Download{% endif %}</button>
                     </form>
                   {% elif game.price_cents == 0 %}
                     <form action="/shop/claim/{{ game.id }}" method="post">
