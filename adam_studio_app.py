@@ -3,6 +3,7 @@ import hmac
 import os
 import sqlite3
 import smtplib
+import urllib.parse
 from datetime import datetime
 from email.message import EmailMessage
 from email.utils import parseaddr
@@ -14,6 +15,9 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "change-this-adam-studio-secret")
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = os.environ.get("COOKIE_SECURE", "0") == "1"
 BASE_DIR = Path(__file__).resolve().parent
 SHOP_DB = Path(os.environ.get("SHOP_DB", BASE_DIR / "shop.db"))
 UPLOAD_DIR = BASE_DIR / "static" / "shop_uploads"
@@ -29,6 +33,42 @@ INSTALLER_EXTENSIONS = {".exe", ".msi"}
 BROWSER_EXTENSIONS = {".zip"}
 ICON_EXTENSIONS = {".ico", ".png"}
 THUMBNAIL_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
+
+
+def canonical_site_url():
+    return (
+        os.environ.get("CANONICAL_SITE_URL")
+        or os.environ.get("SITE_URL")
+        or ""
+    ).rstrip("/")
+
+
+def should_redirect_to_canonical_host(current_host, canonical_host):
+    if not canonical_host or not current_host:
+        return False
+    current_host = current_host.split(":", 1)[0].lower()
+    canonical_host = canonical_host.split(":", 1)[0].lower()
+    if current_host == canonical_host:
+        return False
+    if current_host in {"localhost", "127.0.0.1", "0.0.0.0"}:
+        return False
+    if current_host.endswith(".onrender.com"):
+        return True
+    return os.environ.get("FORCE_CANONICAL_DOMAIN", "0") == "1"
+
+
+@app.before_request
+def redirect_to_custom_domain():
+    target = canonical_site_url()
+    if not target:
+        return None
+    parsed = urllib.parse.urlparse(target)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        return None
+    if not should_redirect_to_canonical_host(request.host, parsed.netloc):
+        return None
+    path = request.full_path if request.query_string else request.path
+    return redirect(urllib.parse.urljoin(target + "/", path.lstrip("/")), code=308)
 
 
 @app.route("/")

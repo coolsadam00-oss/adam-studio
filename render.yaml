@@ -7,6 +7,18 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn adam_studio_app:app --log-file -
     envVars:
+      - key: SITE_URL
+        value: https://www.adam-studio.net
+      - key: CANONICAL_SITE_URL
+        value: https://www.adam-studio.net
+      - key: FORCE_CANONICAL_DOMAIN
+        value: "1"
+      - key: COOKIE_SECURE
+        value: "1"
+      - key: PREFERRED_URL_SCHEME
+        value: https
+      - key: SECRET_KEY
+        generateValue: true
       - key: SUPPORT_EMAIL
         sync: false
       - key: SMTP_HOST
@@ -19,3 +31,13 @@ services:
         sync: false
       - key: SMTP_FROM
         sync: false
+      - key: GEXORA_LOGIN_URL
+        value: https://gexora.onrender.com/adam-studio-login
+      - key: GEXORA_REGISTER_URL
+        value: https://gexora.onrender.com/login?next=/adam-studio-login
+      - key: GEXORA_SHARED_SECRET
+        sync: false
+      - key: ADAM_STUDIO_OWNER_EMAILS
+        value: coolsadam00@gmail.com
+      - key: ADAM_STUDIO_OWNER_USERNAMES
+        value: adminadam2155,coolsadam00

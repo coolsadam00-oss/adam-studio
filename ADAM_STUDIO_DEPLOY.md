@@ -18,7 +18,29 @@ Start command:
 gunicorn adam_studio_app:app --log-file -
 ```
 
+If your Render dashboard is already set to this old command, it also works now:
+
+```bash
+gunicorn app:app --log-file -
+```
+
+The repo includes `app.py` as a compatibility shim that imports the Flask app
+from `adam_studio_app.py`.
+
 The Adam Studio page renders at `/` for this standalone service.
+
+## Custom domain
+
+Use these Render environment variables for `www.adam-studio.net`:
+
+```text
+SITE_URL=https://www.adam-studio.net
+CANONICAL_SITE_URL=https://www.adam-studio.net
+FORCE_CANONICAL_DOMAIN=1
+COOKIE_SECURE=1
+PREFERRED_URL_SCHEME=https
+SECRET_KEY=<random long secret for Flask sessions>
+```
 
 ## Private help email
 
@@ -33,6 +55,9 @@ SMTP_USERNAME=<your Gmail address>
 SMTP_PASSWORD=<your Gmail app password>
 SMTP_FROM=<your Gmail address>
 ```
+
+For Gmail, `SMTP_PASSWORD` must be a Google App Password, not your normal
+Gmail password: https://myaccount.google.com/apppasswords
 
 The website never shows `SUPPORT_EMAIL` to visitors.
 

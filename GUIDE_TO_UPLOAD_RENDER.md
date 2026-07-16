@@ -16,6 +16,7 @@ Upload everything inside `adam_studio_render_site`.
 Important files:
 
 - `adam_studio_app.py`
+- `app.py`
 - `requirements.txt`
 - `render.yaml`
 - `templates/adam_studio.html`
@@ -48,6 +49,12 @@ Start command:
 gunicorn adam_studio_app:app --log-file -
 ```
 
+If Render still has this older start command, it is now safe too:
+
+```bash
+gunicorn app:app --log-file -
+```
+
 6. Click **Create Web Service**.
 
 ## 4. Add private email settings
@@ -66,6 +73,17 @@ SMTP_FROM=<your Gmail address>
 
 Use a Gmail app password, not your normal Gmail password. Your private support
 email is only used by the server and is not shown on the website.
+
+Also add these for your custom domain:
+
+```text
+SITE_URL=https://www.adam-studio.net
+CANONICAL_SITE_URL=https://www.adam-studio.net
+FORCE_CANONICAL_DOMAIN=1
+COOKIE_SECURE=1
+PREFERRED_URL_SCHEME=https
+SECRET_KEY=<random long secret>
+```
 
 Your site will be live at a Render URL like:
 

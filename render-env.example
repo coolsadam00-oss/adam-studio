@@ -1,0 +1,28 @@
+# Render environment variables for Adam Studio
+#
+# Copy these into Render -> Adam Studio service -> Environment.
+# Do not commit real passwords or secrets.
+
+SITE_URL=https://www.adam-studio.net
+CANONICAL_SITE_URL=https://www.adam-studio.net
+FORCE_CANONICAL_DOMAIN=1
+COOKIE_SECURE=1
+PREFERRED_URL_SCHEME=https
+SECRET_KEY=replace-with-a-long-random-secret
+
+# Help form / account email.
+# For Gmail, create an App Password:
+# https://myaccount.google.com/apppasswords
+SUPPORT_EMAIL=your-private-support-email@gmail.com
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=your-gmail-address@gmail.com
+SMTP_PASSWORD=your-gmail-app-password
+SMTP_FROM=your-gmail-address@gmail.com
+
+# Gexora login bridge.
+GEXORA_LOGIN_URL=https://gexora.onrender.com/adam-studio-login
+GEXORA_REGISTER_URL=https://gexora.onrender.com/login?next=/adam-studio-login
+GEXORA_SHARED_SECRET=replace-with-the-same-secret-used-on-gexora
+ADAM_STUDIO_OWNER_EMAILS=coolsadam00@gmail.com
+ADAM_STUDIO_OWNER_USERNAMES=adminadam2155,coolsadam00
