@@ -33,6 +33,41 @@ INSTALLER_EXTENSIONS = {".exe", ".msi"}
 BROWSER_EXTENSIONS = {".zip"}
 ICON_EXTENSIONS = {".ico", ".png"}
 THUMBNAIL_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
+TEAM_MEMBERS_FILE = BASE_DIR / "team_members.txt"
+
+
+def load_team_members():
+    members = [
+        {
+            "name": "Adam Cools",
+            "role": "CEO",
+            "description": "Leading the vision, strategy, and future of Adam Studio.",
+        },
+        {
+            "name": "Emir Yilmaz",
+            "role": "Model",
+            "description": "Representing the brand with style, quality, and presence.",
+        },
+        {
+            "name": "Nura Akar",
+            "role": "Tester",
+            "description": (
+                "Testing the experience and helping the studio find problems "
+                "before players do."
+            ),
+        },
+    ]
+    for line in TEAM_MEMBERS_FILE.read_text(encoding="utf-8").splitlines():
+        if " — " not in line:
+            continue
+        name, role = line.split(" — ", 1)
+        members.append(
+            {"name": name.strip(), "role": role.strip(), "description": ""}
+        )
+    return members
+
+
+TEAM_MEMBERS = load_team_members()
 
 
 def canonical_site_url():
@@ -73,7 +108,11 @@ def redirect_to_custom_domain():
 
 @app.route("/")
 def home():
-    return render_template("adam_studio.html", adam_studio_home_url="/")
+    return render_template(
+        "adam_studio.html",
+        adam_studio_home_url="/",
+        team_members=TEAM_MEMBERS,
+    )
 
 
 @app.route("/sitemap.xml")

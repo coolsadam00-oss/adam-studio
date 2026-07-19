@@ -530,6 +530,37 @@ footer nav a:focus {
   gap: 22px;
 }
 
+.team-extra-grid {
+  display: contents;
+}
+
+.team-extra-grid[hidden] {
+  display: none;
+}
+
+#teamToggle {
+  min-height: 48px;
+  display: block;
+  margin: 32px auto 0;
+  padding: 12px 22px;
+  color: var(--ink);
+  border: 0;
+  border-radius: 6px;
+  background: var(--gold);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+#teamToggle:hover {
+  filter: brightness(1.08);
+}
+
+#teamToggle:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: 4px;
+}
+
 .team-member {
   min-width: 0;
   border: 1px solid rgba(255, 255, 255, 0.16);

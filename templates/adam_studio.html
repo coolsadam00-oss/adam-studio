@@ -147,34 +147,32 @@
         <h2>Meet The Studio</h2>
       </div>
       <div class="team-grid">
-        <details class="team-member">
-          <summary>Adam Cools</summary>
-          <div class="team-reveal">
-            <div>
-              <span class="team-role">CEO</span>
-              <p>Leading the vision, strategy, and future of Adam Studio.</p>
+        {% for member in team_members[:6] %}
+          <details class="team-member">
+            <summary>{{ member.name }}</summary>
+            <div class="team-reveal">
+              <div>
+                <span class="team-role">{{ member.role }}</span>
+                {% if member.description %}<p>{{ member.description }}</p>{% endif %}
+              </div>
             </div>
-          </div>
-        </details>
-        <details class="team-member">
-          <summary>Emir Yilmaz</summary>
-          <div class="team-reveal">
-            <div>
-              <span class="team-role">Model</span>
-              <p>Representing the brand with style, quality, and presence.</p>
-            </div>
-          </div>
-        </details>
-        <details class="team-member">
-          <summary>Nura Akar</summary>
-          <div class="team-reveal">
-            <div>
-              <span class="team-role">Tester</span>
-              <p>Testing the experience and helping the studio find problems before players do.</p>
-            </div>
-          </div>
-        </details>
+          </details>
+        {% endfor %}
+        <div id="extraTeam" class="team-extra-grid" hidden>
+          {% for member in team_members[6:] %}
+            <details class="team-member team-extra">
+              <summary>{{ member.name }}</summary>
+              <div class="team-reveal">
+                <div>
+                  <span class="team-role">{{ member.role }}</span>
+                  {% if member.description %}<p>{{ member.description }}</p>{% endif %}
+                </div>
+              </div>
+            </details>
+          {% endfor %}
+        </div>
       </div>
+      <button id="teamToggle" aria-expanded="false" aria-controls="extraTeam" type="button">View more</button>
     </section>
 
     <section class="community">
@@ -205,5 +203,6 @@
       <a href="/help">Help</a>
     </nav>
   </footer>
+  <script src="/static/team.js"></script>
 </body>
 </html>
