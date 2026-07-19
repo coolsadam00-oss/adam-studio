@@ -76,6 +76,34 @@ def home():
     return render_template("adam_studio.html", adam_studio_home_url="/")
 
 
+@app.route("/sitemap.xml")
+def sitemap():
+    site_url = canonical_site_url() or request.url_root.rstrip("/")
+    public_paths = ("/", "/shop", "/help")
+    urls = [urllib.parse.urljoin(site_url + "/", path.lstrip("/")) for path in public_paths]
+    xml = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ]
+    for page_url in urls:
+        xml.extend(("  <url>", f"    <loc>{page_url}</loc>", "  </url>"))
+    xml.append("</urlset>")
+    return "\n".join(xml), 200, {"Content-Type": "application/xml"}
+
+
+@app.route("/robots.txt")
+def robots_txt():
+    site_url = canonical_site_url() or request.url_root.rstrip("/")
+    body = "\n".join(
+        (
+            "User-agent: *",
+            "Allow: /",
+            f"Sitemap: {site_url}/sitemap.xml",
+        )
+    )
+    return body, 200, {"Content-Type": "text/plain"}
+
+
 def now_iso():
     return datetime.utcnow().isoformat(timespec="seconds")
 
