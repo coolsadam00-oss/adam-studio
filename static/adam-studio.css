@@ -530,9 +530,8 @@ footer nav a:focus {
   gap: 22px;
 }
 
-.team-grid article {
-  min-height: 260px;
-  padding: 34px;
+.team-member {
+  min-width: 0;
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 8px;
   background:
@@ -541,8 +540,65 @@ footer nav a:focus {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
 }
 
-.team-grid h3 {
+.team-member summary {
+  position: relative;
+  min-height: 124px;
+  display: flex;
+  align-items: center;
+  padding: 30px 68px 30px 34px;
+  cursor: pointer;
+  list-style: none;
   font-size: clamp(30px, 4vw, 48px);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.team-member summary::-webkit-details-marker {
+  display: none;
+}
+
+.team-member summary::after {
+  content: "+";
+  position: absolute;
+  right: 30px;
+  color: var(--gold);
+  font-size: 30px;
+  font-weight: 400;
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.team-member[open] summary::after {
+  transform: rotate(45deg);
+}
+
+.team-member summary:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 4px;
+}
+
+.team-reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.team-member[open] .team-reveal {
+  grid-template-rows: 1fr;
+}
+
+.team-reveal > div {
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 34px;
+}
+
+.team-member[open] .team-reveal > div {
+  padding-bottom: 32px;
+}
+
+.team-role {
+  display: inline-block;
+  margin-bottom: 10px;
 }
 
 .team-grid p {
