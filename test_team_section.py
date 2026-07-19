@@ -43,6 +43,18 @@ class TeamSectionTests(unittest.TestCase):
             html,
         )
 
+    def test_nura_is_swapped_with_middle_view_more_member(self):
+        visible_names = [
+            member["name"] for member in adam_studio_app.TEAM_MEMBERS[:6]
+        ]
+        hidden_names = [
+            member["name"] for member in adam_studio_app.TEAM_MEMBERS[6:]
+        ]
+
+        self.assertIn("Ava Anderson", visible_names)
+        self.assertNotIn("Nura Akar", visible_names)
+        self.assertEqual(hidden_names[len(hidden_names) // 2], "Nura Akar")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -105,6 +105,14 @@ def load_team_members():
                 ),
             }
         )
+    nura_index = next(
+        index for index, member in enumerate(members) if member["name"] == "Nura Akar"
+    )
+    middle_hidden_index = 6 + (len(members) - 6) // 2
+    members[nura_index], members[middle_hidden_index] = (
+        members[middle_hidden_index],
+        members[nura_index],
+    )
     return members
 
 
