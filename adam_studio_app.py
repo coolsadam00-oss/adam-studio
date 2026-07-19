@@ -34,6 +34,39 @@ BROWSER_EXTENSIONS = {".zip"}
 ICON_EXTENSIONS = {".ico", ".png"}
 THUMBNAIL_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 TEAM_MEMBERS_FILE = BASE_DIR / "team_members.txt"
+ROLE_DESCRIPTIONS = {
+    "3D Modeler": "Creating detailed 3D objects, props, and assets for our games.",
+    "Animator": "Bringing characters, objects, and scenes to life through movement.",
+    "Backend Developer": "Building the secure server systems that power game features and services.",
+    "Backend Scripter": "Writing server-side scripts for reliable gameplay and data systems.",
+    "Bug Tester": "Finding, reproducing, and reporting bugs before updates reach players.",
+    "Character Animator": "Creating expressive and believable movement for game characters.",
+    "Character Modeler": "Designing and building detailed 3D characters for our worlds.",
+    "Community Manager": "Guiding the community, sharing updates, and keeping players connected.",
+    "Community Support": "Helping players with questions and making sure they feel heard.",
+    "Concept Artist": "Turning early ideas into visual concepts that guide production.",
+    "Environment Artist": "Building the locations, atmosphere, and scenery of each game world.",
+    "Game Designer": "Shaping game rules, progression, challenges, and the overall player experience.",
+    "Game Developer": "Building gameplay systems and interactive features with code.",
+    "Game Tester": "Playing new builds carefully to check quality and player experience.",
+    "Gameplay Designer": "Designing controls, mechanics, balance, and moment-to-moment play.",
+    "Graphic Designer": "Creating clear visual materials for games, updates, and the studio.",
+    "Level Designer": "Designing playable spaces with strong pacing, flow, and challenges.",
+    "Map Designer": "Planning and building maps that are clear, balanced, and fun to explore.",
+    "Moderator": "Keeping community spaces welcoming, organized, and safe.",
+    "Music Composer": "Composing original music that gives each game its own mood.",
+    "Quality Tester": "Checking complete builds against quality standards before release.",
+    "Scripter": "Building gameplay systems and interactive features with code.",
+    "Sound Designer": "Creating sound effects and audio details that make worlds feel alive.",
+    "Story Writer": "Writing characters, dialogue, lore, and stories that support the game.",
+    "Tester": "Testing the experience and helping the studio find problems before players do.",
+    "Texture Artist": "Painting surfaces and materials that give 3D assets their final detail.",
+    "UI Designer": "Designing menus and interfaces that are clear and easy to use.",
+    "Vehicle Modeler": "Building detailed vehicles optimized for gameplay and animation.",
+    "Voice Actor": "Giving characters personality and emotion through voice performance.",
+    "Voice Actress": "Giving characters personality and emotion through voice performance.",
+    "Weapon Modeler": "Creating detailed game-ready weapon models and their visual variations.",
+}
 
 
 def load_team_members():
@@ -61,8 +94,16 @@ def load_team_members():
         if " — " not in line:
             continue
         name, role = line.split(" — ", 1)
+        role = role.strip()
         members.append(
-            {"name": name.strip(), "role": role.strip(), "description": ""}
+            {
+                "name": name.strip(),
+                "role": role,
+                "description": ROLE_DESCRIPTIONS.get(
+                    role,
+                    "Supporting the team with specialist skills across game production.",
+                ),
+            }
         )
     return members
 

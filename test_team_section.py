@@ -30,6 +30,19 @@ class TeamSectionTests(unittest.TestCase):
             team_html,
         )
 
+    def test_every_team_member_has_a_role_description(self):
+        self.assertEqual(len(adam_studio_app.TEAM_MEMBERS), 203)
+        self.assertTrue(
+            all(member["description"] for member in adam_studio_app.TEAM_MEMBERS)
+        )
+
+        response = adam_studio_app.app.test_client().get("/")
+        html = response.get_data(as_text=True)
+        self.assertIn(
+            "Building gameplay systems and interactive features with code.",
+            html,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
